@@ -322,6 +322,12 @@ header.bg-\[#2d2d2d\] {
   height: calc(100vh - 64px) !important;
 }
 
+/* Poker sidebar: full height, flush with top of viewport */
+[data-sidebar-full-height] .group.peer > div.fixed {
+  top: 0 !important;
+  height: 100vh !important;
+}
+
 /* Fix sidebar feature items when collapsed - proper icon display and hidden text */
 [data-state="collapsed"][data-collapsible="icon"] [data-sidebar="menu-button"] {
   width: 100% !important;
