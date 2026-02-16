@@ -2,6 +2,8 @@
 import { useRainBalance } from '@/hooks/use-rain-balance'
 import { StreakCounter } from '@/components/vip/streak-counter'
 import { ReloadClaim } from '@/components/vip/reload-claim'
+import { CashDropCode } from '@/components/vip/cash-drop-code'
+import { BetAndGet } from '@/components/vip/bet-and-get'
 
 import { useState, useEffect, useRef, useCallback, useMemo, useId } from 'react'
 import React from 'react'
@@ -119,7 +121,7 @@ import {
   IconExternalLink,
   IconMaximize,
   IconShare
-, IconMessageCircle2, IconTrash} from '@tabler/icons-react'
+, IconMessageCircle2, IconTrash, IconBrandTelegram, IconRefresh, IconParachute, IconTargetArrow} from '@tabler/icons-react'
 import { colorTokenMap } from '@/lib/agent/designSystem'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
@@ -674,7 +676,7 @@ function TotalRewardsCard() {
   }, [shouldAnimate])
 
   return (
-    <div ref={containerRef} className="flex-shrink-0" style={{ width: '280px' }}>
+    <div ref={containerRef} className="flex-shrink-0 w-full md:w-[280px]">
       <Card className="bg-white/5 dark:bg-white/5 bg-gray-100 dark:bg-white/5 border-white/10 dark:border-white/10 border-gray-200 dark:border-white/10 transition-colors duration-300 h-full">
         <CardContent className="p-4 flex flex-col justify-center items-center h-full text-center">
           <CardTitle className="text-xs text-white/70 dark:text-white/70 text-gray-800 dark:text-white/70 mb-2 transition-colors duration-300">Total Rewards Claimed</CardTitle>
@@ -692,6 +694,7 @@ function TotalRewardsCard() {
 
 // Levels Carousel Component with Timeline
 function LevelsCarousel() {
+  const isMobile = useIsMobile()
   const [api, setApi] = useState<CarouselApi>()
   const [current, setCurrent] = useState(0)
   
@@ -923,20 +926,18 @@ function LevelsCarousel() {
   }, [api])
 
   return (
-    <div className="mb-12 w-full mt-12 flex flex-col items-center">
+    <div className="mb-8 md:mb-12 w-full mt-8 md:mt-12 flex flex-col items-center">
       {/* Title and Subtitle */}
-      <div className="text-center mb-8">
-        <h2 className="text-4xl font-bold text-white mb-3 tracking-tight">The Levels</h2>
-        <p className="text-sm text-white/80 max-w-2xl mx-auto leading-relaxed">
-          At BetOnline, you can start raking in the rewards as soon as you sign up.
-          <br />
-          Through leveling up, your gaming experience will only get better with bigger rewards and benefits.
+      <div className="text-center mb-5 md:mb-8 px-4">
+        <h2 className="text-2xl md:text-4xl font-bold text-white mb-2 md:mb-3 tracking-tight">The Levels</h2>
+        <p className="text-xs md:text-sm text-white/80 max-w-2xl mx-auto leading-relaxed">
+          At BetOnline, you can start raking in the rewards as soon as you sign up. Through leveling up, your gaming experience will only get better with bigger rewards and benefits.
         </p>
       </div>
 
       {/* Timeline */}
-      <div className="relative mb-8 w-full px-4">
-        <div className="h-px bg-white/20 absolute top-1/2 left-4 right-4 -translate-y-1/2"></div>
+      <div className="relative mb-5 md:mb-8 w-full px-3 md:px-4">
+        <div className="h-px bg-white/20 absolute top-1/2 left-3 right-3 md:left-4 md:right-4 -translate-y-1/2"></div>
         <TooltipProvider>
           <div className="flex justify-between relative z-10 px-0">
             {tiers.map((tier, index) => {
@@ -955,10 +956,10 @@ function LevelsCarousel() {
                         }
                       }}
                     >
-                      <div className={`w-8 h-8 rounded-full bg-[#1a1a1a] border-2 flex items-center justify-center transition-all duration-300 hover:scale-110 ${
+                      <div className={`w-6 h-6 md:w-8 md:h-8 rounded-full bg-[#1a1a1a] border-2 flex items-center justify-center transition-all duration-300 hover:scale-110 ${
                         isActive ? 'border-white scale-110' : 'border-white/30'
                       }`}>
-                        <IconCrown className={`w-5 h-5 ${tier.iconColor}`} />
+                        <IconCrown className={`w-3.5 h-3.5 md:w-5 md:h-5 ${tier.iconColor}`} />
                       </div>
                     </div>
                   </TooltipTrigger>
@@ -972,91 +973,82 @@ function LevelsCarousel() {
         </TooltipProvider>
       </div>
 
-      {/* Carousel */}
-      <div className="relative w-full overflow-visible px-0 flex justify-center">
-        <Carousel setApi={setApi} className="w-full" opts={{ align: 'start', loop: false, dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
-          <CarouselContent className="!ml-0 -mr-0">
-            {allLevels.map((level, index) => {
-              const isFirst = index === 0
-              const isLast = index === allLevels.length - 1
-              const isAtStart = current === 0
-              const isAtEnd = current === allLevels.length - 1
-              
-              // Add left padding to first card only when at start
-              // Add right padding to last card only when at end
-              // Add more space between cards
-              const leftPadding = isFirst && isAtStart ? "pl-6" : "pl-0"
-              const rightPadding = isLast && isAtEnd ? "pr-6" : "pr-0"
-              const cardSpacing = index === 0 ? "" : "ml-6"
-              
-              return (
-              <CarouselItem key={index} className={`${leftPadding} ${rightPadding} ${cardSpacing} basis-auto flex-shrink-0`}>
-                <Card className="bg-white/5 border-white/10 relative flex-shrink-0 overflow-hidden" style={{ width: '240px', minHeight: '320px' }}>
+      {/* Carousel — full width like other site carousels */}
+      <div className="relative w-[calc(100%+2rem)] md:w-[calc(100%+3rem)] -mx-4 md:-mx-6 overflow-visible">
+        <Carousel setApi={setApi} className="w-full relative overflow-visible" opts={{ align: 'start', loop: false, dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
+          <CarouselContent className="ml-4 md:ml-6 -mr-2 md:-mr-4">
+            {allLevels.map((level, index) => (
+              <CarouselItem key={index} className="pl-0 pr-3 md:pr-4 basis-auto flex-shrink-0">
+                <Card className="bg-white/5 border-white/10 relative flex-shrink-0 overflow-hidden w-[180px] md:w-[240px] min-h-[260px] md:min-h-[320px]">
                   {level.isActive && (
                     <div className="absolute inset-0 opacity-100 pointer-events-none rounded-lg tile-shimmer" />
                   )}
-                  <CardContent className="p-4 relative z-10">
-                    <div className="flex items-center gap-2 mb-4">
-                      <IconCrown className={`w-5 h-5 ${level.iconColor}`} />
-                      <span className={`text-xs font-semibold ${level.bgColor} ${level.textColor} px-2 py-1 rounded`}>
+                  <CardContent className="p-3 md:p-4 relative z-10">
+                    <div className="flex items-center gap-1.5 md:gap-2 mb-3 md:mb-4">
+                      <IconCrown className={`w-4 h-4 md:w-5 md:h-5 ${level.iconColor}`} />
+                      <span className={`text-[10px] md:text-xs font-semibold ${level.bgColor} ${level.textColor} px-1.5 md:px-2 py-0.5 md:py-1 rounded`}>
                         {level.name}
                       </span>
                     </div>
-                    <div className={`text-lg font-semibold mb-1 ${level.isActive ? 'text-white' : 'text-white/50'}`}>
+                    <div className={`text-base md:text-lg font-semibold mb-0.5 md:mb-1 ${level.isActive ? 'text-white' : 'text-white/50'}`}>
                       {level.wager}
                     </div>
-                    <div className={`text-sm mb-4 ${level.isActive ? 'text-white/70' : 'text-white/50'}`}>
+                    <div className={`text-xs md:text-sm mb-3 md:mb-4 ${level.isActive ? 'text-white/70' : 'text-white/50'}`}>
                       Wager Amount
                     </div>
-                    <div className="space-y-2">
+                    <div className="space-y-1.5 md:space-y-2">
                       {level.benefits.map((benefit, benefitIndex) => (
-                        <div key={benefitIndex} className={`flex items-center gap-2 text-sm ${level.isActive ? 'text-white' : 'text-white/50'}`}>
-                          <div className={`h-4 w-4 rounded-full flex items-center justify-center ${level.isActive ? 'bg-white/20' : 'bg-white/10'}`}>
-                            <IconCheck className="h-3 w-3" />
+                        <div key={benefitIndex} className={`flex items-center gap-1.5 md:gap-2 text-xs md:text-sm ${level.isActive ? 'text-white' : 'text-white/50'}`}>
+                          <div className={`h-3.5 w-3.5 md:h-4 md:w-4 rounded-full flex items-center justify-center flex-shrink-0 ${level.isActive ? 'bg-white/20' : 'bg-white/10'}`}>
+                            <IconCheck className="h-2.5 w-2.5 md:h-3 md:w-3" />
                           </div>
-                          <span>{benefit}</span>
+                          <span className="truncate">{benefit}</span>
                         </div>
                       ))}
                     </div>
                   </CardContent>
                 </Card>
               </CarouselItem>
-              )
-            })}
+            ))}
           </CarouselContent>
-          <Button
-            onClick={() => {
-              if (api) {
-                const currentIndex = api.selectedScrollSnap()
-                const targetIndex = Math.max(0, currentIndex - 1)
-                api.scrollTo(targetIndex)
-              }
-            }}
-            className="!left-2 !top-1/2 !-translate-y-1/2 !-translate-x-0 !absolute text-white border-white/20 hover:bg-white/10 bg-[#1a1a1a]/80 z-30 !visible !opacity-100 !flex h-8 w-8 rounded-full disabled:opacity-50 disabled:cursor-not-allowed items-center justify-center p-0"
-            variant="outline"
-            size="icon"
-            disabled={!api || !canScrollPrev}
-          >
-            <IconChevronLeft className="h-4 w-4 m-0" strokeWidth={1.5} />
-            <span className="sr-only">Previous slide</span>
-          </Button>
-          <Button
-            onClick={() => {
-              if (api) {
-                const currentIndex = api.selectedScrollSnap()
-                const slideCount = api.scrollSnapList().length
-                const targetIndex = Math.min(slideCount - 1, currentIndex + 1)
-                api.scrollTo(targetIndex)
-              }
-            }}
-            className="!right-2 !top-1/2 !-translate-y-1/2 !-translate-x-0 !absolute text-white border-white/20 hover:bg-white/10 bg-[#1a1a1a]/80 z-30 !visible !opacity-100 !flex h-8 w-8 rounded-full disabled:opacity-50 disabled:cursor-not-allowed items-center justify-center p-0"
-            variant="outline"
-            size="icon"
-            disabled={!api || !canScrollNext}
-          >
-            <IconChevronRight className="h-4 w-4 m-0" strokeWidth={1.5} />
-            <span className="sr-only">Next slide</span>
-          </Button>
+          {/* Arrows — desktop only */}
+          {!isMobile && (
+            <>
+              <Button
+                onClick={() => {
+                  if (api) {
+                    const currentIndex = api.selectedScrollSnap()
+                    const targetIndex = Math.max(0, currentIndex - 1)
+                    api.scrollTo(targetIndex)
+                  }
+                }}
+                className="!left-2 !top-1/2 !-translate-y-1/2 !-translate-x-0 !absolute text-white border-white/20 hover:bg-white/10 bg-[#1a1a1a]/80 z-30 !visible !opacity-100 !flex h-8 w-8 rounded-full disabled:opacity-50 disabled:cursor-not-allowed items-center justify-center p-0"
+                variant="outline"
+                size="icon"
+                disabled={!api || !canScrollPrev}
+              >
+                <IconChevronLeft className="h-4 w-4 m-0" strokeWidth={1.5} />
+                <span className="sr-only">Previous slide</span>
+              </Button>
+              <Button
+                onClick={() => {
+                  if (api) {
+                    const currentIndex = api.selectedScrollSnap()
+                    const slideCount = api.scrollSnapList().length
+                    const targetIndex = Math.min(slideCount - 1, currentIndex + 1)
+                    api.scrollTo(targetIndex)
+                  }
+                }}
+                className="!right-2 !top-1/2 !-translate-y-1/2 !-translate-x-0 !absolute text-white border-white/20 hover:bg-white/10 bg-[#1a1a1a]/80 z-30 !visible !opacity-100 !flex h-8 w-8 rounded-full disabled:opacity-50 disabled:cursor-not-allowed items-center justify-center p-0"
+                variant="outline"
+                size="icon"
+                disabled={!api || !canScrollNext}
+              >
+                <IconChevronRight className="h-4 w-4 m-0" strokeWidth={1.5} />
+                <span className="sr-only">Next slide</span>
+              </Button>
+            </>
+          )}
         </Carousel>
       </div>
     </div>
@@ -1282,146 +1274,41 @@ function CashRacesPage({ brandPrimary, setVipDrawerOpen, setShowVipRewards, setV
   }
   
   return (
-    <SidebarInset className="bg-[#1a1a1a] text-white overflow-y-auto">
-      <div className="px-6 pt-8 pb-8 max-w-7xl mx-auto w-full">
-        {/* Banner Carousel - Reusing Casino Banner with Arrows */}
-        <div className="mb-8 -mx-6">
-          <Carousel className="w-full relative overflow-visible" opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
-            <CarouselContent className="ml-6 -mr-2 md:-mr-4">
-            {/* VIP Rewards Card */}
-            <CarouselItem className="pl-0 pr-3 basis-auto flex-shrink-0">
-              <Card 
-                className="group relative bg-white/5 dark:bg-white/5 bg-gray-100 dark:bg-white/5 border-white/10 dark:border-white/10 border-gray-200 dark:border-white/10 flex-shrink-0 transition-colors duration-300 cursor-pointer overflow-hidden" 
-                style={{ width: '200px', height: '140px' }}
-                onClick={() => {
-                  if (setVipDrawerOpen) {
-                    setVipDrawerOpen(true)
-                  }
-                }}
-              >
-                <CardContent className="p-4 relative z-10">
-                  <CardTitle className="text-sm text-white/70 dark:text-white/70 text-gray-800 dark:text-white/70 mb-4 transition-colors duration-300">VIP Rewards</CardTitle>
-                  <div className="text-xs text-gray-600 dark:text-white/50 mb-2 transition-colors duration-300">Gold To Platinum I</div>
-                  <VIPProgressBar value={45} />
-                </CardContent>
-                {/* Sweep effect */}
-                <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out z-0" />
-              </Card>
-            </CarouselItem>
-            
-            {/* Daily Races Card */}
-            <CarouselItem className="pl-3 pr-3 basis-auto flex-shrink-0">
-              <Card 
-                className="group relative bg-white/5 dark:bg-white/5 bg-gray-100 dark:bg-white/5 border-white/10 dark:border-white/10 border-gray-200 dark:border-white/10 flex-shrink-0 transition-colors duration-300 cursor-pointer overflow-hidden" 
-                style={{ width: '300px', height: '140px' }}
-                onClick={() => {
-                  // Save current page state before navigating
-                  if (setPreviousPageState) {
-                    setPreviousPageState({
-                      showSports: false,
-                      showVipRewards: true,
-                      activeSubNav: undefined
-                    })
-                  }
-                  if (setShowVipRewards) {
-                    setShowVipRewards(true)
-                  }
-                  if (setVipActiveSidebarItem) {
-                    setVipActiveSidebarItem('Cash Races')
-                  }
-                  // Scroll to top when navigating to new page
-                  window.scrollTo({ top: 0, behavior: 'smooth' })
-                }}
-              >
-                <CardContent className="p-4 relative z-10">
-                  <div className="flex items-start justify-between mb-4">
-                    <CardTitle className="text-sm text-white/70 dark:text-white/70 text-gray-800 dark:text-white/70 mb-0 transition-colors duration-300">Daily Races</CardTitle>
-                    <div className="text-right">
-                      <DailyRacesTimer />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-3 gap-2 text-xs">
-                    <div className="bg-[#2d2d2d] dark:bg-[#2d2d2d] rounded-small p-2.5 border border-white/10 dark:border-white/10 transition-colors duration-300">
-                      <div className="text-gray-800 dark:text-white font-semibold mb-0.5 transition-colors duration-300">3rd</div>
-                      <div className="text-gray-600 dark:text-white/50 text-[10px] transition-colors duration-300">Position</div>
-                    </div>
-                    <div className="bg-[#2d2d2d] dark:bg-[#2d2d2d] rounded-small p-2.5 border border-white/10 dark:border-white/10 transition-colors duration-300">
-                      <div className="text-gray-800 dark:text-white font-semibold mb-0.5 transition-colors duration-300">$80.000</div>
-                      <div className="text-gray-600 dark:text-white/50 text-[10px] transition-colors duration-300">Wagered</div>
-                    </div>
-                    <div className="bg-[#2d2d2d] dark:bg-[#2d2d2d] rounded-small p-2.5 border border-white/10 dark:border-white/10 transition-colors duration-300">
-                      <div className="text-gray-800 dark:text-white font-semibold mb-0.5 transition-colors duration-300">$160.000</div>
-                      <div className="text-gray-600 dark:text-white/50 text-[10px] transition-colors duration-300">Current Prize</div>
-                    </div>
-                  </div>
-                </CardContent>
-                {/* Sweep effect */}
-                <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out z-0" />
-              </Card>
-            </CarouselItem>
-            
-            {/* Weekly Game Banner */}
-            <CarouselItem className="pl-3 pr-3 basis-auto flex-shrink-0">
-              <Card className="border-0 relative overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity" style={{ width: '320px', height: '140px' }}>
-                <Image
-                  src="/banners/weekly.png"
-                  alt="Weekly Game Banner"
-                  width={320}
-                  height={140}
-                  className="object-contain dark:brightness-100 brightness-75 dark:contrast-100 contrast-110"
-                  priority
-                  unoptimized
-                  quality={100}
-                  style={{ imageRendering: 'crisp-edges' }}
-                />
-              </Card>
-            </CarouselItem>
-            
-            {/* Originals Banner */}
-            <CarouselItem className="pl-3 pr-3 basis-auto flex-shrink-0">
-              <Card className="border-0 relative overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity" style={{ width: '320px', height: '140px' }}>
-                <Image
-                  src="/banners/orginals.png"
-                  alt="Originals Banner"
-                  width={320}
-                  height={140}
-                  className="object-contain dark:brightness-100 brightness-75 dark:contrast-100 contrast-110"
-                  priority
-                  unoptimized
-                  quality={100}
-                  style={{ imageRendering: 'crisp-edges' }}
-                />
-              </Card>
-            </CarouselItem>
-            
-            {/* Free Spins Banner */}
-            <CarouselItem className="pl-3 pr-3 basis-auto flex-shrink-0">
-              <Card className="border-0 relative overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity" style={{ width: '320px', height: '140px' }}>
-                <Image
-                  src="/banners/freespins.png"
-                  alt="Free Spins Banner"
-                  width={320}
-                  height={140}
-                  className="object-contain dark:brightness-100 brightness-75 dark:contrast-100 contrast-110"
-                  priority
-                  unoptimized
-                  quality={100}
-                  style={{ imageRendering: 'crisp-edges' }}
-                />
-              </Card>
-            </CarouselItem>
-            
-            {/* Placeholder Banners to fill gaps on large screens */}
-            {Array.from({ length: 5 }).map((_, index) => (
-              <CarouselItem key={`banner-placeholder-${index}`} className="pl-3 pr-3 basis-auto flex-shrink-0">
-                <Card className="border-0 relative overflow-hidden flex-shrink-0" style={{ width: '320px', height: '140px' }}>
-                  <Skeleton className="w-full h-full rounded-small bg-white/10 dark:bg-white/10" />
+    <SidebarInset className="bg-[#1a1a1a] text-white">
+      {/* Banner Carousel - Full Width with Arrows */}
+      <div className="pt-6 md:pt-8 mb-6 md:mb-8">
+        <Carousel className="w-full relative overflow-visible" opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
+          {!isMobile && (
+            <>
+              <CarouselPrevious className="!left-2 !-translate-x-0 h-8 w-8 rounded-full bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white z-20" />
+              <CarouselNext className="!right-2 !-translate-x-0 h-8 w-8 rounded-full bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white z-20" />
+            </>
+          )}
+          <CarouselContent className="ml-4 md:ml-6 -mr-2 md:-mr-4">
+            {[
+              { src: '/banners/casino/casino_banner1.svg', alt: 'Casino Banner 1' },
+              { src: '/banners/casino/casino_banner2.svg', alt: 'Casino Banner 2' },
+              { src: '/banners/casino/casino_banner 3.svg', alt: 'Casino Banner 3' },
+              { src: '/banners/casino/casino_banner4.svg', alt: 'Casino Banner 4' },
+              { src: '/banners/casino/casino_Banner5.svg', alt: 'Casino Banner 5' },
+            ].map((banner, index) => (
+              <CarouselItem key={index} className={`${index === 0 ? 'pl-0' : 'pl-2 md:pl-4'} basis-auto flex-shrink-0`}>
+                <Card className="border-0 relative overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity rounded-small" style={{ width: '340px', height: '164px' }}>
+                  <Image
+                    src={banner.src}
+                    alt={banner.alt}
+                    width={340}
+                    height={164}
+                    className="object-cover w-full h-full"
+                    unoptimized
+                  />
                 </Card>
               </CarouselItem>
             ))}
-            </CarouselContent>
-          </Carousel>
-        </div>
+          </CarouselContent>
+        </Carousel>
+      </div>
+      <div className="px-4 md:px-6 pb-8 max-w-7xl mx-auto w-full">
         {/* Cash Races Title with Back Button */}
         <div className="flex items-center gap-4 mb-6">
           {previousPageState && (
@@ -1457,7 +1344,7 @@ function CashRacesPage({ brandPrimary, setVipDrawerOpen, setShowVipRewards, setV
               <IconChevronLeft className="w-5 h-5" />
             </button>
           )}
-          <h1 className="text-3xl font-bold text-white">Cash Races</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-white">Cash Races</h1>
         </div>
         
         {/* Sub Nav Tabs */}
@@ -1643,6 +1530,7 @@ function CashRacesPage({ brandPrimary, setVipDrawerOpen, setShowVipRewards, setV
 
 // Promos Page Component
 function PromosPage({ brandPrimary, setVipDrawerOpen, setShowVipRewards, setVipActiveTab, setVipActiveSidebarItem }: { brandPrimary: string; setVipDrawerOpen?: (open: boolean) => void; setShowVipRewards?: (show: boolean) => void; setVipActiveTab?: (tab: string) => void; setVipActiveSidebarItem?: (item: string) => void }) {
+  const isMobile = useIsMobile()
   const [activeTab, setActiveTab] = useState('Deposit Bonus')
 
   const promoData = [
@@ -1657,118 +1545,49 @@ function PromosPage({ brandPrimary, setVipDrawerOpen, setShowVipRewards, setVipA
   ]
 
   return (
-    <SidebarInset className="bg-[#1a1a1a] text-white overflow-y-auto">
-      <div className="px-6 pt-8 pb-8 max-w-7xl mx-auto w-full">
-        {/* Banner Carousel - Reusing Casino Banner with Arrows */}
-        <div className="mb-8 -mx-6">
-          <Carousel className="w-full relative overflow-visible" opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
-            <CarouselContent className="ml-6 -mr-2 md:-mr-4">
-              {/* VIP Rewards Card */}
-              <CarouselItem className="pl-0 pr-3 basis-auto flex-shrink-0">
-                <Card 
-                  className="group relative bg-white/5 dark:bg-white/5 bg-gray-100 dark:bg-white/5 border-white/10 dark:border-white/10 border-gray-200 dark:border-white/10 flex-shrink-0 transition-colors duration-300 cursor-pointer overflow-hidden" 
-                  style={{ width: '200px', height: '140px' }}
-                  onClick={() => {
-                    if (setVipDrawerOpen) {
-                      setVipDrawerOpen(true)
-                    }
-                  }}
-                >
-                  <CardContent className="p-4 relative z-10">
-                    <CardTitle className="text-sm text-white/70 dark:text-white/70 text-gray-800 dark:text-white/70 mb-4 transition-colors duration-300">VIP Rewards</CardTitle>
-                    <div className="text-xs text-gray-600 dark:text-white/50 mb-2 transition-colors duration-300">Gold To Platinum I</div>
-                    <VIPProgressBar value={45} />
-                  </CardContent>
-                  {/* Sweep effect */}
-                  <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out z-0" />
-                </Card>
-              </CarouselItem>
-              
-              {/* Daily Races Card */}
-              <CarouselItem className="pl-3 pr-3 basis-auto flex-shrink-0">
-                <Card 
-                  className="group relative bg-white/5 dark:bg-white/5 bg-gray-100 dark:bg-white/5 border-white/10 dark:border-white/10 border-gray-200 dark:border-white/10 flex-shrink-0 transition-colors duration-300 cursor-pointer overflow-hidden" 
-                  style={{ width: '300px', height: '140px' }}
-                  onClick={() => {
-                    if (setShowVipRewards) {
-                      setShowVipRewards(true)
-                    }
-                    if (setVipActiveSidebarItem) {
-                      setVipActiveSidebarItem('Cash Races')
-                    }
-                  }}
-                >
-                  <CardContent className="p-4 relative z-10">
-                    <div className="flex items-start justify-between mb-4">
-                      <CardTitle className="text-sm text-white/70 dark:text-white/70 text-gray-800 dark:text-white/70 mb-0 transition-colors duration-300">Daily Races</CardTitle>
-                      <div className="text-right">
-                        <DailyRacesTimer />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-3 gap-2 text-xs">
-                      <div className="bg-[#2d2d2d] dark:bg-[#2d2d2d] rounded-small p-2.5 border border-white/10 dark:border-white/10 transition-colors duration-300">
-                        <div className="text-gray-800 dark:text-white font-semibold mb-0.5 transition-colors duration-300">3rd</div>
-                        <div className="text-gray-600 dark:text-white/50 text-[10px] transition-colors duration-300">Position</div>
-                      </div>
-                      <div className="bg-[#2d2d2d] dark:bg-[#2d2d2d] rounded-small p-2.5 border border-white/10 dark:border-white/10 transition-colors duration-300">
-                        <div className="text-gray-800 dark:text-white font-semibold mb-0.5 transition-colors duration-300">$80.000</div>
-                        <div className="text-gray-600 dark:text-white/50 text-[10px] transition-colors duration-300">Wagered</div>
-                      </div>
-                      <div className="bg-[#2d2d2d] dark:bg-[#2d2d2d] rounded-small p-2.5 border border-white/10 dark:border-white/10 transition-colors duration-300">
-                        <div className="text-gray-800 dark:text-white font-semibold mb-0.5 transition-colors duration-300">$160.000</div>
-                        <div className="text-gray-600 dark:text-white/50 text-[10px] transition-colors duration-300">Current Prize</div>
-                      </div>
-                    </div>
-                  </CardContent>
-                  {/* Sweep effect */}
-                  <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out z-0" />
-                </Card>
-              </CarouselItem>
-              
-              {/* Weekly Game Banner */}
-              <CarouselItem className="pl-3 pr-3 basis-auto flex-shrink-0">
-                <Card className="border-0 relative overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity" style={{ width: '320px', height: '140px' }}>
+    <SidebarInset className="bg-[#1a1a1a] text-white">
+      {/* Banner Carousel - Full Width with Arrows */}
+      <div className="pt-6 md:pt-8 mb-6 md:mb-8">
+        <Carousel className="w-full relative overflow-visible" opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
+          {!isMobile && (
+            <>
+              <CarouselPrevious className="!left-2 !-translate-x-0 h-8 w-8 rounded-full bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white z-20" />
+              <CarouselNext className="!right-2 !-translate-x-0 h-8 w-8 rounded-full bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white z-20" />
+            </>
+          )}
+          <CarouselContent className="ml-4 md:ml-6 -mr-2 md:-mr-4">
+            {[
+              { src: '/banners/casino/casino_banner1.svg', alt: 'Casino Banner 1' },
+              { src: '/banners/casino/casino_banner2.svg', alt: 'Casino Banner 2' },
+              { src: '/banners/casino/casino_banner 3.svg', alt: 'Casino Banner 3' },
+              { src: '/banners/casino/casino_banner4.svg', alt: 'Casino Banner 4' },
+              { src: '/banners/casino/casino_Banner5.svg', alt: 'Casino Banner 5' },
+            ].map((banner, index) => (
+              <CarouselItem key={index} className={`${index === 0 ? 'pl-0' : 'pl-2 md:pl-4'} basis-auto flex-shrink-0`}>
+                <Card className="border-0 relative overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity rounded-small" style={{ width: '340px', height: '164px' }}>
                   <Image
-                    src="/banners/weekly.png"
-                    alt="Weekly Game Banner"
-                    width={320}
-                    height={140}
-                    className="object-contain dark:brightness-100 brightness-75 dark:contrast-100 contrast-110"
-                    priority
+                    src={banner.src}
+                    alt={banner.alt}
+                    width={340}
+                    height={164}
+                    className="object-cover w-full h-full"
                     unoptimized
-                    quality={100}
-                    style={{ imageRendering: 'crisp-edges' }}
                   />
                 </Card>
               </CarouselItem>
-              
-              {/* Originals Banner */}
-              <CarouselItem className="pl-3 pr-3 basis-auto flex-shrink-0">
-                <Card className="border-0 relative overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity" style={{ width: '320px', height: '140px' }}>
-                  <Image
-                    src="/banners/orginals.png"
-                    alt="Originals Banner"
-                    width={320}
-                    height={140}
-                    className="object-contain dark:brightness-100 brightness-75 dark:contrast-100 contrast-110"
-                    priority
-                    unoptimized
-                    quality={100}
-                    style={{ imageRendering: 'crisp-edges' }}
-                  />
-                </Card>
-              </CarouselItem>
-            </CarouselContent>
-          </Carousel>
-        </div>
+            ))}
+          </CarouselContent>
+        </Carousel>
+      </div>
+      <div className="px-4 md:px-6 pb-8 max-w-7xl mx-auto w-full">
 
         {/* Promos Section */}
         <div className="w-full">
           {/* Title */}
-          <h1 className="text-3xl font-bold text-white mb-6">Promos</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-white mb-4 md:mb-6">Promos</h1>
 
           {/* Tabs - Using AnimateTabs like Casino */}
-          <div className="mb-6">
+          <div className="mb-4 md:mb-6">
             <AnimateTabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <AnimateTabsList className="bg-white/5 dark:bg-white/5 bg-gray-100/80 dark:bg-white/5 p-0.5 h-auto gap-1 rounded-3xl border-0 relative transition-colors duration-300">
                 {['Deposit Bonus', 'Sports', 'Casino', 'Poker'].map((tab) => (
@@ -1798,7 +1617,7 @@ function PromosPage({ brandPrimary, setVipDrawerOpen, setShowVipRewards, setVipA
           </div>
 
           {/* Promo Cards Grid */}
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {promoData.map((promo) => (
               <Card key={promo.id} className="bg-white/5 border-white/10 overflow-hidden">
                 {/* Image Placeholder with Glare Animation */}
@@ -1825,11 +1644,29 @@ function PromosPage({ brandPrimary, setVipDrawerOpen, setShowVipRewards, setVipA
   )
 }
 
+// Casino Bonus data type
+type CasinoBonusItem = {
+  id: string;
+  name: string;
+  action: 'PLAY NOW' | 'PICK A GAME';
+  code: string;
+  bonusFunds: string;
+  expiryDate: string;
+  rollover: string;
+  freeSpins: number;
+  initialBonusAmount: string;
+  lockedCashFund: string;
+  awardedDate: string;
+  availableOn: string;
+};
+
 // My Bonus Page Component
-function MyBonusPage({ brandPrimary }: { brandPrimary: string }) {
+function MyBonusPage({ brandPrimary, setShowVipRewards }: { brandPrimary: string; setShowVipRewards?: (show: boolean) => void }) {
   const id = useId()
+  const isMobile = useIsMobile()
   const [activeTab, setActiveTab] = useState('Sports')
   const [expandedRow, setExpandedRow] = useState<string | null>(null)
+  const [expandedCasinoRow, setExpandedCasinoRow] = useState<string | null>(null)
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const inputRef = useRef<HTMLInputElement>(null)
@@ -1842,7 +1679,33 @@ function MyBonusPage({ brandPrimary }: { brandPrimary: string }) {
     { id: '3', code: 'No Promo Code', amount: '$5.00', rollover: '$0.00', date: '11/04/2014', status: 'EXPIRED', statusColor: 'bg-orange-500' },
     { id: '4', code: 'Sports2025', amount: '$10.00', rollover: '$8.00', date: '11/04/2014', status: 'CANCELLED', statusColor: 'bg-gray-400' },
     { id: '5', code: '1000Happy', amount: '$4.00', rollover: '$0.00', date: '11/04/2014', status: 'COMPLETE', statusColor: 'bg-blue-500' },
+    { id: '6', code: '1000Happy', amount: '$4.00', rollover: '$0.00', date: '11/04/2014', status: 'ACTIVE', statusColor: 'bg-green-500' },
+    { id: '7', code: 'No Promo Code', amount: '$5.00', rollover: '$0.00', date: '11/04/2014', status: 'EXPIRED', statusColor: 'bg-orange-500' },
+    { id: '8', code: 'Sports2025', amount: '$10.00', rollover: '$8.00', date: '11/04/2014', status: 'CANCELLED', statusColor: 'bg-gray-400' },
+    { id: '9', code: '1000Happy', amount: '$4.00', rollover: '$0.00', date: '11/04/2014', status: 'COMPLETE', statusColor: 'bg-blue-500' },
+    { id: '10', code: '1000Happy', amount: '$4.00', rollover: '$0.00', date: '11/04/2014', status: 'COMPLETE', statusColor: 'bg-blue-500' },
   ])
+
+  // Casino Bonus data
+  const [casinoBonusPage, setCasinoBonusPage] = useState(0)
+  const casinoBonusRowsPerPage = 10
+  const casinoBonuses: CasinoBonusItem[] = [
+    { id: 'c1', name: 'Free Spins', action: 'PICK A GAME', code: '1888100', bonusFunds: '$100.00', expiryDate: 'May 25, 2024', rollover: '$0.00/$500.00', freeSpins: 5, initialBonusAmount: '$100.00', lockedCashFund: '$0.00', awardedDate: 'May 10, 2024', availableOn: 'Select a game to apply the free spins bonus.' },
+    { id: 'c2', name: 'Mystery Game', action: 'PICK A GAME', code: '453339004567', bonusFunds: '$5.00', expiryDate: 'Aug 20, 2024', rollover: '$364.76/$500.00', freeSpins: 200, initialBonusAmount: '$5.00', lockedCashFund: '$0.00', awardedDate: 'Jun 01, 2024', availableOn: 'Select a game to apply the bonus.' },
+    { id: 'c3', name: 'Free Spins', action: 'PICK A GAME', code: '1888100', bonusFunds: '$100.00', expiryDate: 'May 25, 2024', rollover: '$0.00/$500.00', freeSpins: 5, initialBonusAmount: '$100.00', lockedCashFund: '$0.00', awardedDate: 'May 10, 2024', availableOn: 'Select a game to apply the free spins bonus.' },
+    { id: 'c4', name: 'Mystery Game', action: 'PICK A GAME', code: '453339004567', bonusFunds: '$5.00', expiryDate: 'Aug 20, 2024', rollover: '$364.76/$500.00', freeSpins: 200, initialBonusAmount: '$5.00', lockedCashFund: '$0.00', awardedDate: 'Jul 15, 2024', availableOn: 'Select a game to apply the bonus.' },
+    { id: 'c5', name: 'Free Spins', action: 'PICK A GAME', code: '1888100', bonusFunds: '$100.00', expiryDate: 'May 25, 2024', rollover: '$0.00/$500.00', freeSpins: 5, initialBonusAmount: '$100.00', lockedCashFund: '$0.00', awardedDate: 'May 10, 2024', availableOn: 'Select a game to apply the free spins bonus.' },
+    { id: 'c6', name: 'Blackjack Bonus', action: 'PLAY NOW', code: '1888100', bonusFunds: '$50.00', expiryDate: 'Jun 15, 2024', rollover: '$0.00/$250.00', freeSpins: 0, initialBonusAmount: '$50.00', lockedCashFund: '$0.00', awardedDate: 'May 20, 2024', availableOn: 'Blackjack' },
+    { id: 'c7', name: 'Free Spins', action: 'PICK A GAME', code: '1888100', bonusFunds: '$100.00', expiryDate: 'May 25, 2024', rollover: '$0.00/$500.00', freeSpins: 5, initialBonusAmount: '$100.00', lockedCashFund: '$0.00', awardedDate: 'Sep 05, 2024', availableOn: 'Select a game to apply the free spins bonus.' },
+    { id: 'c8', name: 'Mystery Game', action: 'PICK A GAME', code: '453339004567', bonusFunds: '$5.00', expiryDate: 'Aug 20, 2024', rollover: '$364.76/$500.00', freeSpins: 200, initialBonusAmount: '$5.00', lockedCashFund: '$0.00', awardedDate: 'Oct 01, 2024', availableOn: 'Select a game to apply the bonus.' },
+    { id: 'c9', name: 'Slots Bonus', action: 'PLAY NOW', code: '453339004567', bonusFunds: '$25.00', expiryDate: 'Sep 30, 2024', rollover: '$0.00/$125.00', freeSpins: 50, initialBonusAmount: '$25.00', lockedCashFund: '$0.00', awardedDate: 'Oct 15, 2024', availableOn: 'Golden Dragon Slots' },
+    { id: 'c10', name: 'Mystery Game', action: 'PICK A GAME', code: '453339004567', bonusFunds: '$5.00', expiryDate: 'Aug 20, 2024', rollover: '$364.76/$500.00', freeSpins: 200, initialBonusAmount: '$5.00', lockedCashFund: '$0.00', awardedDate: 'Nov 01, 2024', availableOn: 'Select a game to apply the bonus.' },
+    { id: 'c11', name: 'Mystery Game', action: 'PICK A GAME', code: '453339004567', bonusFunds: '$5.00', expiryDate: 'Aug 20, 2024', rollover: '$364.76/$500.00', freeSpins: 200, initialBonusAmount: '$5.00', lockedCashFund: '$0.00', awardedDate: 'Nov 15, 2024', availableOn: 'Select a game to apply the bonus.' },
+    { id: 'c12', name: 'Roulette Bonus', action: 'PLAY NOW', code: '453339004567', bonusFunds: '$30.00', expiryDate: 'Dec 01, 2024', rollover: '$0.00/$150.00', freeSpins: 0, initialBonusAmount: '$30.00', lockedCashFund: '$0.00', awardedDate: 'Dec 01, 2024', availableOn: 'European Roulette' },
+    { id: 'c13', name: 'Mystery Game', action: 'PICK A GAME', code: '453339004567', bonusFunds: '$5.00', expiryDate: 'Aug 20, 2024', rollover: '$364.76/$500.00', freeSpins: 200, initialBonusAmount: '$5.00', lockedCashFund: '$0.00', awardedDate: 'Dec 15, 2024', availableOn: 'Select a game to apply the bonus.' },
+  ]
+  const casinoBonusTotalPages = Math.ceil(casinoBonuses.length / casinoBonusRowsPerPage)
+  const casinoBonusPaginated = casinoBonuses.slice(casinoBonusPage * casinoBonusRowsPerPage, (casinoBonusPage + 1) * casinoBonusRowsPerPage)
 
   const columns: ColumnDef<BonusItem>[] = useMemo(() => [
     {
@@ -1956,97 +1819,49 @@ function MyBonusPage({ brandPrimary }: { brandPrimary: string }) {
   };
 
   return (
-    <SidebarInset className="bg-[#1a1a1a] text-white overflow-y-auto">
-      <div className="px-6 pt-8 pb-8 max-w-7xl mx-auto w-full">
-        {/* Banner Carousel - Reusing Casino Banner with Arrows */}
-        <div className="mb-8 -mx-6">
-          <Carousel className="w-full relative overflow-visible" opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
-            <CarouselContent className="ml-6 -mr-2 md:-mr-4">
-              {/* VIP Rewards Card */}
-              <CarouselItem className="pl-0 pr-3 basis-auto flex-shrink-0">
-                  <Card className="bg-white/5 dark:bg-white/5 bg-gray-100 dark:bg-white/5 border-white/10 dark:border-white/10 border-gray-200 dark:border-white/10 flex-shrink-0 transition-colors duration-300" style={{ width: '200px', height: '140px' }}>
-                  <CardContent className="p-4">
-                    <CardTitle className="text-sm text-white/70 dark:text-white/70 text-gray-800 dark:text-white/70 mb-4 transition-colors duration-300">VIP Rewards</CardTitle>
-                    <div className="text-xs text-gray-600 dark:text-white/50 mb-2 transition-colors duration-300">Gold To Platinum I</div>
-                    <VIPProgressBar value={45} />
-                  </CardContent>
-                </Card>
-              </CarouselItem>
-              
-              {/* Daily Races Card */}
-              <CarouselItem className="pl-3 pr-3 basis-auto flex-shrink-0">
-                <Card className="bg-white/5 dark:bg-white/5 bg-gray-100 dark:bg-white/5 border-white/10 dark:border-white/10 border-gray-200 dark:border-white/10 flex-shrink-0 transition-colors duration-300" style={{ width: '300px', height: '140px' }}>
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between mb-4">
-                      <CardTitle className="text-sm text-white/70 dark:text-white/70 text-gray-800 dark:text-white/70 mb-0 transition-colors duration-300">Daily Races</CardTitle>
-                      <div className="text-right">
-                        <DailyRacesTimer />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-3 gap-2 text-xs">
-                      <div className="bg-[#2d2d2d] dark:bg-[#2d2d2d] rounded-small p-2.5 border border-white/10 dark:border-white/10 transition-colors duration-300">
-                        <div className="text-gray-800 dark:text-white font-semibold mb-0.5 transition-colors duration-300">3rd</div>
-                        <div className="text-gray-600 dark:text-white/50 text-[10px] transition-colors duration-300">Position</div>
-                      </div>
-                      <div className="bg-[#2d2d2d] dark:bg-[#2d2d2d] rounded-small p-2.5 border border-white/10 dark:border-white/10 transition-colors duration-300">
-                        <div className="text-gray-800 dark:text-white font-semibold mb-0.5 transition-colors duration-300">$80.000</div>
-                        <div className="text-gray-600 dark:text-white/50 text-[10px] transition-colors duration-300">Wagered</div>
-                      </div>
-                      <div className="bg-[#2d2d2d] dark:bg-[#2d2d2d] rounded-small p-2.5 border border-white/10 dark:border-white/10 transition-colors duration-300">
-                        <div className="text-gray-800 dark:text-white font-semibold mb-0.5 transition-colors duration-300">$160.000</div>
-                        <div className="text-gray-600 dark:text-white/50 text-[10px] transition-colors duration-300">Current Prize</div>
-                      </div>
-                    </div>
-                  </CardContent>
-                  {/* Sweep effect */}
-                  <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out z-0" />
-                </Card>
-              </CarouselItem>
-              
-              {/* Weekly Game Banner */}
-              <CarouselItem className="pl-3 pr-3 basis-auto flex-shrink-0">
-                <Card className="border-0 relative overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity" style={{ width: '320px', height: '140px' }}>
+    <SidebarInset className="bg-[#1a1a1a] text-white">
+      {/* Banner Carousel - Full Width with Arrows */}
+      <div className="pt-6 md:pt-8 mb-6 md:mb-8">
+        <Carousel className="w-full relative overflow-visible" opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
+          {!isMobile && (
+            <>
+              <CarouselPrevious className="!left-2 !-translate-x-0 h-8 w-8 rounded-full bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white z-20" />
+              <CarouselNext className="!right-2 !-translate-x-0 h-8 w-8 rounded-full bg-[#1a1a1a]/90 backdrop-blur-sm border border-white/20 hover:bg-[#1a1a1a] hover:border-white/30 text-white z-20" />
+            </>
+          )}
+          <CarouselContent className="ml-4 md:ml-6 -mr-2 md:-mr-4">
+            {[
+              { src: '/banners/casino/casino_banner1.svg', alt: 'Casino Banner 1' },
+              { src: '/banners/casino/casino_banner2.svg', alt: 'Casino Banner 2' },
+              { src: '/banners/casino/casino_banner 3.svg', alt: 'Casino Banner 3' },
+              { src: '/banners/casino/casino_banner4.svg', alt: 'Casino Banner 4' },
+              { src: '/banners/casino/casino_Banner5.svg', alt: 'Casino Banner 5' },
+            ].map((banner, index) => (
+              <CarouselItem key={index} className={`${index === 0 ? 'pl-0' : 'pl-2 md:pl-4'} basis-auto flex-shrink-0`}>
+                <Card className="border-0 relative overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity rounded-small" style={{ width: '340px', height: '164px' }}>
                   <Image
-                    src="/banners/weekly.png"
-                    alt="Weekly Game Banner"
-                    width={320}
-                    height={140}
-                    className="object-contain dark:brightness-100 brightness-75 dark:contrast-100 contrast-110"
-                    priority
+                    src={banner.src}
+                    alt={banner.alt}
+                    width={340}
+                    height={164}
+                    className="object-cover w-full h-full"
                     unoptimized
-                    quality={100}
-                    style={{ imageRendering: 'crisp-edges' }}
                   />
                 </Card>
               </CarouselItem>
-              
-              {/* Originals Banner */}
-              <CarouselItem className="pl-3 pr-3 basis-auto flex-shrink-0">
-                <Card className="border-0 relative overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity" style={{ width: '320px', height: '140px' }}>
-                  <Image
-                    src="/banners/orginals.png"
-                    alt="Originals Banner"
-                    width={320}
-                    height={140}
-                    className="object-contain dark:brightness-100 brightness-75 dark:contrast-100 contrast-110"
-                    priority
-                    unoptimized
-                    quality={100}
-                    style={{ imageRendering: 'crisp-edges' }}
-                  />
-                </Card>
-              </CarouselItem>
-            </CarouselContent>
-          </Carousel>
-        </div>
+            ))}
+          </CarouselContent>
+        </Carousel>
+      </div>
+      <div className="px-4 md:px-6 pb-8 max-w-7xl mx-auto w-full">
 
         {/* My Bonus Section */}
         <div className="w-full">
           {/* Title */}
-          <h1 className="text-3xl font-bold text-white mb-6">My Bonus</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-white mb-4 md:mb-6">My Bonus</h1>
 
           {/* Tabs - Using AnimateTabs like Casino */}
-          <div className="mb-6">
+          <div className="mb-4 md:mb-6">
             <AnimateTabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <AnimateTabsList className="bg-white/5 dark:bg-white/5 bg-gray-100/80 dark:bg-white/5 p-0.5 h-auto gap-1 rounded-3xl border-0 relative transition-colors duration-300">
                 {['Sports', 'Casino'].map((tab) => (
@@ -2075,16 +1890,61 @@ function MyBonusPage({ brandPrimary }: { brandPrimary: string }) {
             </AnimateTabs>
           </div>
 
-          {/* Filters */}
-          <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-            <div className="flex items-center gap-3">
+          {/* Sports Tab Content */}
+          {activeTab === 'Sports' && (
+            <>
+              {/* Filters */}
+              {isMobile ? (
+            /* Mobile: ADD FILTER bar */
+            <Popover>
+              <div className="flex items-center gap-3 mb-4">
+                <PopoverTrigger asChild>
+                  <button className="flex items-center gap-2 text-sm font-semibold text-white/80 uppercase tracking-wide">
+                    <IconFilter className="w-4 h-4 text-white/50" />
+                    Add Filter
+                  </button>
+                </PopoverTrigger>
+                <div className="h-5 w-px bg-white/10" />
+                <span className="text-sm text-white/40">
+                  {selectedStatuses.length > 0 ? `${selectedStatuses.length} filter${selectedStatuses.length > 1 ? 's' : ''} applied` : 'No filters applied'}
+                </span>
+              </div>
+              <PopoverContent className="w-auto min-w-36 p-3 bg-[#2d2d2d] border-white/10" align="start">
+                <div className="space-y-3">
+                  <div className="text-white/70 text-xs font-medium">Filter by Status</div>
+                  <div className="space-y-3">
+                    {uniqueStatusValues.map((value, i) => (
+                      <div key={value} className="flex items-center gap-2">
+                        <Checkbox
+                          id={`${id}-m-${i}`}
+                          checked={selectedStatuses.includes(value)}
+                          onCheckedChange={(checked: boolean) => handleStatusChange(checked, value)}
+                          className="border-white/20"
+                        />
+                        <Label
+                          htmlFor={`${id}-m-${i}`}
+                          className="flex grow justify-between gap-2 font-normal text-white">
+                          {value}{" "}
+                          <span className="text-white/50 ms-2 text-xs">
+                            {statusCounts.get(value)}
+                          </span>
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+          ) : (
+            /* Desktop: Full filter bar */
+            <div className="flex flex-wrap items-center gap-3 mb-4">
               {/* Filter by code or amount */}
               <div className="relative">
                 <Input
                   id={`${id}-input`}
                   ref={inputRef}
                   className={cn(
-                    "peer min-w-60 ps-9 bg-white/5 border-white/10 text-white placeholder:text-white/50",
+                    "peer min-w-60 ps-9 bg-white/5 border-white/10 text-white placeholder:text-white/50 text-sm",
                     Boolean(table.getColumn("code")?.getFilterValue()) && "pe-9"
                   )}
                   value={(table.getColumn("code")?.getFilterValue() ?? "") as string}
@@ -2113,7 +1973,7 @@ function MyBonusPage({ brandPrimary }: { brandPrimary: string }) {
               {/* Filter by status */}
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="bg-white/5 border-white/10 text-white hover:bg-white/10">
+                  <Button variant="outline" size="sm" className="bg-white/5 border-white/10 text-white hover:bg-white/10 h-9 px-3 text-xs">
                     <FilterIcon className="-ms-1 opacity-60" size={16} aria-hidden="true" />
                     Status
                     {selectedStatuses.length > 0 && (
@@ -2152,7 +2012,7 @@ function MyBonusPage({ brandPrimary }: { brandPrimary: string }) {
               {/* Toggle columns visibility */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="bg-white/5 border-white/10 text-white hover:bg-white/10">
+                  <Button variant="outline" size="sm" className="bg-white/5 border-white/10 text-white hover:bg-white/10 h-9 px-3 text-xs">
                     <Columns3Icon className="-ms-1 opacity-60" size={16} aria-hidden="true" />
                     View
                   </Button>
@@ -2177,117 +2037,351 @@ function MyBonusPage({ brandPrimary }: { brandPrimary: string }) {
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-          </div>
+          )}
 
-          {/* Table */}
-          <div className="bg-white/5 border border-white/10 rounded-lg overflow-hidden mb-4">
-            <Table className="table-fixed">
-              <TableHeader>
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <TableRow key={headerGroup.id} className="hover:bg-transparent border-white/10">
-                    {headerGroup.headers.map((header) => {
-                      return (
-                        <TableHead
-                          key={header.id}
-                          style={{ width: `${header.getSize()}px` }}
-                          className="h-11 text-white/60 text-xs font-normal">
-                          {header.isPlaceholder ? null : header.column.getCanSort() ? (
-                            <div
-                              className={cn(
-                                header.column.getCanSort() &&
-                                  "flex h-full cursor-pointer items-center justify-between gap-2 select-none"
-                              )}
-                              onClick={header.column.getToggleSortingHandler()}
-                              onKeyDown={(e) => {
-                                if (
-                                  header.column.getCanSort() &&
-                                  (e.key === "Enter" || e.key === " ")
-                                ) {
-                                  e.preventDefault();
-                                  header.column.getToggleSortingHandler()?.(e);
-                                }
-                              }}
-                              tabIndex={header.column.getCanSort() ? 0 : undefined}>
-                              {flexRender(header.column.columnDef.header, header.getContext())}
-                              {{
-                                asc: (
-                                  <ChevronUpIcon
-                                    className="shrink-0 opacity-60 text-white"
-                                    size={16}
-                                    aria-hidden="true"
-                                  />
-                                ),
-                                desc: (
-                                  <ChevronDownIcon
-                                    className="shrink-0 opacity-60 text-white"
-                                    size={16}
-                                    aria-hidden="true"
-                                  />
-                                )
-                              }[header.column.getIsSorted() as string] ?? null}
-                            </div>
-                          ) : (
-                            flexRender(header.column.columnDef.header, header.getContext())
-                          )}
-                        </TableHead>
-                      );
-                    })}
-                  </TableRow>
-                ))}
-              </TableHeader>
-              <TableBody>
-                {table.getRowModel().rows?.length ? (
-                  table.getRowModel().rows.map((row) => (
+          {/* Mobile: Card-based list */}
+          {isMobile ? (
+            <div className="bg-white/5 border border-white/10 rounded-lg overflow-hidden mb-4">
+              {/* Header row */}
+              <div className="flex items-center px-4 py-3 border-b border-white/10">
+                <span className="flex-1 text-sm font-medium text-white/60">Code</span>
+                <span className="w-[100px] text-sm font-medium text-white/60">Date</span>
+                <span className="w-[100px] text-sm font-medium text-white/60 text-center">Status</span>
+                <span className="w-8" />
+              </div>
+              {/* Data rows */}
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => {
+                  const item = row.original
+                  const statusColors: Record<string, { text: string; border: string }> = {
+                    'ACTIVE': { text: 'text-green-500', border: 'border-green-500/50' },
+                    'EXPIRED': { text: 'text-orange-400', border: 'border-orange-400/50' },
+                    'CANCELLED': { text: 'text-white/50', border: 'border-white/20' },
+                    'COMPLETE': { text: 'text-blue-400', border: 'border-blue-400/50' },
+                  }
+                  const colors = statusColors[item.status] || statusColors['ACTIVE']
+                  return (
                     <React.Fragment key={row.id}>
-                      <TableRow className="border-white/10 hover:bg-white/5">
-                        {row.getVisibleCells().map((cell) => {
-                          // Skip rendering the actions cell in the main row
-                          if (cell.column.id === "actions") {
-                            return null
-                          }
+                      <button
+                        onClick={() => setExpandedRow(expandedRow === row.id ? null : row.id)}
+                        className="flex items-center w-full px-4 py-4 border-b border-white/5 hover:bg-white/5 transition-colors text-left"
+                      >
+                        <span className="flex-1 text-sm font-semibold text-white truncate pr-2">{item.code}</span>
+                        <span className="w-[100px] text-sm text-white/70 shrink-0">{item.date}</span>
+                        <span className="w-[100px] flex justify-center shrink-0">
+                          <span className={cn("px-2.5 py-1 rounded-full text-xs font-medium border", colors.text, colors.border)}>
+                            {item.status}
+                          </span>
+                        </span>
+                        <span className="w-8 flex justify-center shrink-0">
+                          <IconChevronDown 
+                            className={cn(
+                              "w-4 h-4 text-white/40 transition-transform",
+                              expandedRow === row.id && "rotate-180"
+                            )} 
+                          />
+                        </span>
+                      </button>
+                      {expandedRow === row.id && (
+                        <div className="px-4 py-3 bg-white/5 border-b border-white/10">
+                          <div className="grid grid-cols-2 gap-2 text-sm">
+                            <div>
+                              <span className="text-white/40 text-xs">Amount</span>
+                              <p className="text-white font-medium">{item.amount}</p>
+                            </div>
+                            <div>
+                              <span className="text-white/40 text-xs">Rollover</span>
+                              <p className="text-white font-medium">{item.rollover}</p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </React.Fragment>
+                  )
+                })
+              ) : (
+                <div className="px-4 py-8 text-center text-white/40 text-sm">No results.</div>
+              )}
+            </div>
+          ) : (
+            /* Desktop: Full table */
+            <div className="bg-white/5 border border-white/10 rounded-lg overflow-hidden mb-4">
+              <div className="overflow-x-auto">
+                <Table className="table-fixed min-w-[540px]">
+                  <TableHeader>
+                    {table.getHeaderGroups().map((headerGroup) => (
+                      <TableRow key={headerGroup.id} className="hover:bg-transparent border-white/10">
+                        {headerGroup.headers.map((header) => {
                           return (
-                            <TableCell key={cell.id}>
-                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                            </TableCell>
-                          )
+                            <TableHead
+                              key={header.id}
+                              style={{ width: `${header.getSize()}px` }}
+                              className="h-11 text-white/60 text-xs font-normal">
+                              {header.isPlaceholder ? null : header.column.getCanSort() ? (
+                                <div
+                                  className={cn(
+                                    header.column.getCanSort() &&
+                                      "flex h-full cursor-pointer items-center justify-between gap-2 select-none"
+                                  )}
+                                  onClick={header.column.getToggleSortingHandler()}
+                                  onKeyDown={(e) => {
+                                    if (
+                                      header.column.getCanSort() &&
+                                      (e.key === "Enter" || e.key === " ")
+                                    ) {
+                                      e.preventDefault();
+                                      header.column.getToggleSortingHandler()?.(e);
+                                    }
+                                  }}
+                                  tabIndex={header.column.getCanSort() ? 0 : undefined}>
+                                  {flexRender(header.column.columnDef.header, header.getContext())}
+                                  {{
+                                    asc: (
+                                      <ChevronUpIcon
+                                        className="shrink-0 opacity-60 text-white"
+                                        size={16}
+                                        aria-hidden="true"
+                                      />
+                                    ),
+                                    desc: (
+                                      <ChevronDownIcon
+                                        className="shrink-0 opacity-60 text-white"
+                                        size={16}
+                                        aria-hidden="true"
+                                      />
+                                    )
+                                  }[header.column.getIsSorted() as string] ?? null}
+                                </div>
+                              ) : (
+                                flexRender(header.column.columnDef.header, header.getContext())
+                              )}
+                            </TableHead>
+                          );
                         })}
-                        <TableCell className="w-[60px]">
-                          <button
-                            onClick={() => setExpandedRow(expandedRow === row.id ? null : row.id)}
-                            className="flex items-center justify-center w-full h-full"
-                          >
-                            <IconChevronDown 
-                              className={cn(
-                                "w-4 h-4 text-white/70 transition-transform",
-                                expandedRow === row.id && "rotate-180"
-                              )} 
-                            />
-                          </button>
+                      </TableRow>
+                    ))}
+                  </TableHeader>
+                  <TableBody>
+                    {table.getRowModel().rows?.length ? (
+                      table.getRowModel().rows.map((row) => (
+                        <React.Fragment key={row.id}>
+                          <TableRow className="border-white/10 hover:bg-white/5">
+                            {row.getVisibleCells().map((cell) => {
+                              // Skip rendering the actions cell in the main row
+                              if (cell.column.id === "actions") {
+                                return null
+                              }
+                              return (
+                                <TableCell key={cell.id}>
+                                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                </TableCell>
+                              )
+                            })}
+                            <TableCell className="w-[60px]">
+                              <button
+                                onClick={() => setExpandedRow(expandedRow === row.id ? null : row.id)}
+                                className="flex items-center justify-center w-full h-full"
+                              >
+                                <IconChevronDown 
+                                  className={cn(
+                                    "w-4 h-4 text-white/70 transition-transform",
+                                    expandedRow === row.id && "rotate-180"
+                                  )} 
+                                />
+                              </button>
+                            </TableCell>
+                          </TableRow>
+                          {expandedRow === row.id && (
+                            <TableRow className="border-white/10">
+                              <TableCell colSpan={columns.length} className="py-4 bg-white/5">
+                                <div className="space-y-2 pl-4">
+                                  <div className="text-sm text-white/70">
+                                    <strong className="text-white">Bonus Details:</strong> Additional information about this bonus will appear here.
+                                  </div>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </React.Fragment>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={columns.length} className="h-24 text-center text-white/70">
+                          No results.
                         </TableCell>
                       </TableRow>
-                      {expandedRow === row.id && (
-                        <TableRow className="border-white/10">
-                          <TableCell colSpan={columns.length} className="py-4 bg-white/5">
-                            <div className="space-y-2 pl-4">
-                              <div className="text-sm text-white/70">
-                                <strong className="text-white">Bonus Details:</strong> Additional information about this bonus will appear here.
-                              </div>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          )}
+            </>
+          )}
+
+                    {/* Casino Tab Content */}
+          {activeTab === 'Casino' && (
+            <>
+              {/* Mobile: Single container table-style (matches Sports tab) */}
+              <div className="md:hidden bg-white/5 border border-white/10 rounded-lg overflow-hidden mb-4">
+                {/* Header row */}
+                <div className="flex items-center px-4 py-3 border-b border-white/10">
+                  <span className="flex-1 text-sm font-medium text-white/60">Name</span>
+                  <span className="w-[120px] text-sm font-medium text-white/60 text-right pr-6">Action</span>
+                  <span className="w-8" />
+                </div>
+                {/* Data rows */}
+                {casinoBonusPaginated.length > 0 ? (
+                  casinoBonusPaginated.map((bonus) => (
+                    <React.Fragment key={bonus.id}>
+                      <button
+                        onClick={() => setExpandedCasinoRow(expandedCasinoRow === bonus.id ? null : bonus.id)}
+                        className="flex items-center w-full px-4 py-4 border-b border-white/5 hover:bg-white/5 transition-colors text-left"
+                      >
+                        <span className="flex-1 text-sm font-semibold text-white truncate pr-2">{bonus.name}</span>
+                        <span className="w-[120px] flex justify-end pr-2 shrink-0">
+                          <span
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              if (bonus.action === 'PICK A GAME' && setShowVipRewards) {
+                                setShowVipRewards(false)
+                              }
+                            }}
+                            className="px-4 py-1.5 rounded text-xs font-semibold uppercase tracking-wide transition-colors bg-[#ee3536] hover:bg-[#d42e2f] text-white whitespace-nowrap cursor-pointer"
+                          >
+                            {bonus.action}
+                          </span>
+                        </span>
+                        <span className="w-8 flex justify-center shrink-0">
+                          <IconChevronDown className={cn("w-4 h-4 text-white/40 transition-transform", expandedCasinoRow === bonus.id && "rotate-180")} />
+                        </span>
+                      </button>
+                      {expandedCasinoRow === bonus.id && (
+                        <div className="px-4 py-3 bg-white/5 border-b border-white/10">
+                          <div className="grid grid-cols-3 gap-3 text-sm mb-3">
+                            <div>
+                              <span className="text-white/40 text-xs">Code</span>
+                              <p className="text-white font-medium">{bonus.code}</p>
                             </div>
-                          </TableCell>
-                        </TableRow>
+                            <div>
+                              <span className="text-white/40 text-xs">Bonus Fund</span>
+                              <p className="text-white font-medium">{bonus.bonusFunds}</p>
+                            </div>
+                            <div>
+                              <span className="text-white/40 text-xs">Free Spins</span>
+                              <p className="text-white font-medium">{bonus.freeSpins}</p>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-2 gap-3 text-sm">
+                            <div>
+                              <span className="text-white/40 text-xs">Expiry Date</span>
+                              <p className="text-white font-medium">{bonus.expiryDate}</p>
+                            </div>
+                            <div>
+                              <span className="text-white/40 text-xs">Rollover</span>
+                              <p className="text-white font-medium">{bonus.rollover}</p>
+                            </div>
+                          </div>
+                        </div>
                       )}
                     </React.Fragment>
                   ))
                 ) : (
-                  <TableRow>
-                    <TableCell colSpan={columns.length} className="h-24 text-center text-white/70">
-                      No results.
-                    </TableCell>
-                  </TableRow>
+                  <div className="px-4 py-8 text-center text-white/40 text-sm">No results.</div>
                 )}
-              </TableBody>
-            </Table>
-          </div>
+              </div>
+
+              {/* Desktop: Full data table in same wrapper style as Sports tab */}
+              <div className="hidden md:block bg-white/5 border border-white/10 rounded-lg overflow-hidden mb-4">
+                <div className="overflow-x-auto">
+                  <Table className="table-fixed min-w-[800px]">
+                    <TableHeader>
+                      <TableRow className="hover:bg-transparent border-white/10">
+                        <TableHead className="text-white/60 text-xs font-normal h-11 w-[140px]">Name</TableHead>
+                        <TableHead className="text-white/60 text-xs font-normal h-11 w-[140px]">Code</TableHead>
+                        <TableHead className="text-white/60 text-xs font-normal h-11 w-[100px]">Bonus Fund</TableHead>
+                        <TableHead className="text-white/60 text-xs font-normal h-11 w-[110px]">Expiry Date</TableHead>
+                        <TableHead className="text-white/60 text-xs font-normal h-11 w-[120px]">Rollover</TableHead>
+                        <TableHead className="text-white/60 text-xs font-normal h-11 w-[80px]">Free Spins</TableHead>
+                        <TableHead className="text-white/60 text-xs font-normal h-11 w-[130px]">Action</TableHead>
+                        <TableHead className="text-white/60 text-xs font-normal h-11 w-[60px]"></TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {casinoBonusPaginated.map((bonus) => (
+                        <React.Fragment key={bonus.id}>
+                          <TableRow className="border-white/10 hover:bg-white/5">
+                            <TableCell className="text-sm text-white">{bonus.name}</TableCell>
+                            <TableCell className="text-sm text-white">{bonus.code}</TableCell>
+                            <TableCell className="text-sm text-white">{bonus.bonusFunds}</TableCell>
+                            <TableCell className="text-sm text-white">{bonus.expiryDate}</TableCell>
+                            <TableCell className="text-sm text-white">{bonus.rollover}</TableCell>
+                            <TableCell className="text-sm text-white">{bonus.freeSpins}</TableCell>
+                            <TableCell>
+                              <button
+                                onClick={() => {
+                                  if (bonus.action === 'PICK A GAME' && setShowVipRewards) {
+                                    setShowVipRewards(false)
+                                  }
+                                }}
+                                className="px-4 py-1.5 rounded text-xs font-semibold uppercase tracking-wide transition-colors bg-[#ee3536] hover:bg-[#d42e2f] text-white whitespace-nowrap"
+                              >
+                                {bonus.action}
+                              </button>
+                            </TableCell>
+                            <TableCell className="w-[60px]">
+                              <button
+                                onClick={() => setExpandedCasinoRow(expandedCasinoRow === bonus.id ? null : bonus.id)}
+                                className="flex items-center justify-center w-full h-full"
+                              >
+                                <IconChevronDown className={cn("w-4 h-4 text-white/70 transition-transform", expandedCasinoRow === bonus.id && "rotate-180")} />
+                              </button>
+                            </TableCell>
+                          </TableRow>
+                          {expandedCasinoRow === bonus.id && (
+                            <TableRow className="border-white/10">
+                              <TableCell colSpan={8} className="py-4 bg-white/5">
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm pl-4">
+                                  <div><span className="text-white/40 block text-xs mb-0.5">Initial Bonus Amount</span><span className="text-white">{bonus.initialBonusAmount}</span></div>
+                                  <div><span className="text-white/40 block text-xs mb-0.5">Locked Cash Fund</span><span className="text-white">{bonus.lockedCashFund}</span></div>
+                                  <div><span className="text-white/40 block text-xs mb-0.5">Awarded Date</span><span className="text-white">{bonus.awardedDate}</span></div>
+                                  <div><span className="text-white/40 block text-xs mb-0.5">Available On</span><span className="text-white">{bonus.availableOn}</span></div>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </React.Fragment>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+
+              {/* Pagination */}
+              {casinoBonuses.length > casinoBonusRowsPerPage && (
+                <div className="flex items-center justify-end gap-4 mt-4 text-sm text-white/60">
+                  <span>Page: {casinoBonusRowsPerPage}</span>
+                  <span>{casinoBonusPage * casinoBonusRowsPerPage + 1}-{Math.min((casinoBonusPage + 1) * casinoBonusRowsPerPage, casinoBonuses.length)} of {casinoBonuses.length}</span>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => setCasinoBonusPage(Math.max(0, casinoBonusPage - 1))}
+                      disabled={casinoBonusPage === 0}
+                      className={cn("p-1 rounded hover:bg-white/10 transition-colors", casinoBonusPage === 0 && "opacity-30 cursor-not-allowed")}
+                    >
+                      <IconChevronLeft className="w-4 h-4 text-white/60" />
+                    </button>
+                    <button
+                      onClick={() => setCasinoBonusPage(Math.min(casinoBonusTotalPages - 1, casinoBonusPage + 1))}
+                      disabled={casinoBonusPage >= casinoBonusTotalPages - 1}
+                      className={cn("p-1 rounded hover:bg-white/10 transition-colors", casinoBonusPage >= casinoBonusTotalPages - 1 && "opacity-30 cursor-not-allowed")}
+                    >
+                      <IconChevronRight className="w-4 h-4 text-white/60" />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
         </div>
       </div>
     </SidebarInset>
@@ -2295,7 +2389,7 @@ function MyBonusPage({ brandPrimary }: { brandPrimary: string }) {
 }
 
 // VIP Rewards Page Component
-function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setShowToast, setToastMessage, setToastAction, setShowVipRewards, setIsPageTransitioning, initialVipSidebarItem, setInitialVipSidebarItem, previousPageState, setPreviousPageState, setActiveSubNav }: { brandPrimary: string; setVipDrawerOpen: (open: boolean) => void; setVipActiveTab: (tab: string) => void; setShowToast: (show: boolean) => void; setToastMessage: (message: string) => void; setToastAction: (action: { label: string; onClick: () => void } | null) => void; setShowVipRewards: (show: boolean) => void; setIsPageTransitioning: (transitioning: boolean) => void; initialVipSidebarItem?: string | null; setInitialVipSidebarItem?: (item: string | null) => void; previousPageState?: { showSports: boolean; showVipRewards: boolean; activeSubNav?: string } | null; setPreviousPageState?: (state: { showSports: boolean; showVipRewards: boolean; activeSubNav?: string } | null) => void; setActiveSubNav?: (nav: string) => void }) {
+function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setShowToast, setToastMessage, setToastAction, setShowVipRewards, setIsPageTransitioning, initialVipSidebarItem, setInitialVipSidebarItem, previousPageState, setPreviousPageState, setActiveSubNav, quickLinksOpen }: { brandPrimary: string; setVipDrawerOpen: (open: boolean) => void; setVipActiveTab: (tab: string) => void; setShowToast: (show: boolean) => void; setToastMessage: (message: string) => void; setToastAction: (action: { label: string; onClick: () => void } | null) => void; setShowVipRewards: (show: boolean) => void; setIsPageTransitioning: (transitioning: boolean) => void; initialVipSidebarItem?: string | null; setInitialVipSidebarItem?: (item: string | null) => void; previousPageState?: { showSports: boolean; showVipRewards: boolean; activeSubNav?: string } | null; setPreviousPageState?: (state: { showSports: boolean; showVipRewards: boolean; activeSubNav?: string } | null) => void; setActiveSubNav?: (nav: string) => void; quickLinksOpen?: boolean }) {
   const { state: sidebarState } = useSidebar()
   const [vipActiveSidebarItem, setVipActiveSidebarItem] = useState(initialVipSidebarItem || 'Overview')
   const [hasShownToast, setHasShownToast] = useState(false)
@@ -2333,13 +2427,15 @@ function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setSh
     }
   }, [hasShownToast, setShowToast, setToastMessage, setToastAction, setVipDrawerOpen, setVipActiveTab])
   
+  const isMobileVip = useIsMobile()
+  
   return (
     <div className="flex w-full min-h-screen bg-[#1a1a1a]">
-      {/* VIP Rewards Sidebar */}
+      {/* VIP Rewards Sidebar - Desktop Only */}
       <Sidebar 
         collapsible="icon"
         variant="sidebar"
-        className="!bg-[#2d2d2d] border-r border-white/10 text-white [&>div]:!bg-[#2d2d2d]"
+        className="!bg-[#2d2d2d] border-r border-white/10 text-white [&>div]:!bg-[#2d2d2d] hidden md:flex"
       >
         <SidebarContent className="overflow-y-auto">
           <TooltipProvider>
@@ -2355,9 +2451,10 @@ function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setSh
               { id: 'Contests', icon: IconTrophy, label: 'Contests' },
               { id: 'Refer A Friend', icon: IconUserPlus, label: 'Refer A Friend' },
               { type: 'separator' },
-              { id: 'Reloads', icon: IconCoins, label: 'Reloads', linkTo: 'reloads' },
-              { id: 'Cash Drop', icon: IconCoins, label: 'Cash Drop', linkTo: 'draw' },
-              { id: 'Bet & Get', icon: IconCoins, label: 'Bet & Get', linkTo: 'draw' },
+              { id: 'Cash Boost', icon: IconBolt, label: 'Cash Boost', linkTo: 'cashboost' },
+              { id: 'Reloads', icon: IconRefresh, label: 'Reloads', linkTo: 'reloads' },
+              { id: 'Cash Drop', icon: IconParachute, label: 'Cash Drop', linkTo: 'draw' },
+              { id: 'Bet & Get', icon: IconTargetArrow, label: 'Bet & Get', linkTo: 'draw' },
               { type: 'separator' },
               { id: 'Get Telegram', icon: IconDownload, label: 'Get Telegram' },
             ].map((item, index) => {
@@ -2390,7 +2487,10 @@ function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setSh
                           e.stopPropagation()
                           if (item.linkTo) {
                             // Deep link to VIP hub drawer
-                            if (item.linkTo === 'reloads') {
+                            if (item.linkTo === 'cashboost') {
+                              setVipDrawerOpen(true)
+                              setVipActiveTab('Cash Boost')
+                            } else if (item.linkTo === 'reloads') {
                               setVipDrawerOpen(true)
                               setVipActiveTab('Reloads')
                             } else if (item.linkTo === 'draw') {
@@ -2444,8 +2544,59 @@ function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setSh
         </SidebarContent>
       </Sidebar>
       
+      {/* Content wrapper - mobile nav + content */}
+      <div className="flex-1 flex flex-col min-w-0">
+      {/* Mobile VIP Navigation — fixed below header like casino sub nav */}
+      {isMobileVip && (
+        <motion.div 
+          className="md:hidden fixed left-0 right-0 z-[90] bg-[#1a1a1a]/60 backdrop-blur-xl border-b border-white/10"
+          initial={false}
+          animate={{ top: quickLinksOpen ? 104 : 64 }}
+          transition={{ type: "tween", ease: "linear", duration: 0.3 }}
+          style={{ top: quickLinksOpen ? 104 : 64 }}
+        >
+          <div className="overflow-x-auto scrollbar-hide px-3 py-2" style={{ WebkitOverflowScrolling: 'touch' }}>
+            <AnimateTabs value={vipActiveSidebarItem} onValueChange={(value) => setVipActiveSidebarItem(value)} className="w-max">
+              <AnimateTabsList className="bg-white/5 p-0.5 h-auto gap-1 rounded-3xl border-0 relative transition-colors duration-300">
+                {[
+                  { id: 'Overview', label: 'Dashboard' },
+                  { id: 'My Bonus', label: 'My Bonus' },
+                  { id: 'Promos', label: 'Promos' },
+                  { id: 'Cash Races', label: 'Cash Races' },
+                  { id: 'Contests', label: 'Contests' },
+                  { id: 'Refer A Friend', label: 'Refer' },
+                ].map((item) => (
+                  <TabsTab
+                    key={item.id}
+                    value={item.id}
+                    className="relative z-10 text-white/70 hover:text-white hover:bg-white/5 rounded-2xl px-4 py-1 h-9 text-xs font-medium transition-colors duration-300 ease-in-out data-[state=active]:text-white focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 active:bg-transparent active:outline-none whitespace-nowrap"
+                  >
+                    {vipActiveSidebarItem === item.id && (
+                      <motion.div
+                        layoutId="activeVipMobileTab"
+                        className="absolute inset-0 rounded-2xl -z-10"
+                        style={{ backgroundColor: brandPrimary }}
+                        initial={false}
+                        transition={{
+                          type: "spring",
+                          stiffness: 400,
+                          damping: 40
+                        }}
+                      />
+                    )}
+                    <span className="relative z-10">{item.label}</span>
+                  </TabsTab>
+                ))}
+              </AnimateTabsList>
+            </AnimateTabs>
+          </div>
+        </motion.div>
+      )}
+      {/* Spacer for fixed mobile VIP sub nav */}
+      {isMobileVip && <div className="md:hidden h-[44px]" />}
+      
       {vipActiveSidebarItem === 'My Bonus' ? (
-        <MyBonusPage brandPrimary={brandPrimary} />
+        <MyBonusPage brandPrimary={brandPrimary} setShowVipRewards={setShowVipRewards} />
       ) : vipActiveSidebarItem === 'Promos' ? (
         <PromosPage 
           brandPrimary={brandPrimary} 
@@ -2466,24 +2617,25 @@ function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setSh
           setActiveSubNav={setActiveSubNav}
         />
       ) : (
-        <SidebarInset className="bg-[#1a1a1a] text-white overflow-y-auto">
+        <SidebarInset className="bg-[#1a1a1a] text-white">
         {/* Hero Image */}
         <div className="w-full relative">
           <img 
             src="/banners/sports_league/Hero.png" 
             alt="VIP Rewards Hero" 
-            className="w-full h-auto object-cover"
+            className="w-full h-auto object-cover max-h-[200px] md:max-h-none"
             style={{ display: 'block' }}
           />
         </div>
         
-        <div className="px-6 pt-8 pb-8 max-w-7xl mx-auto flex flex-col items-center w-full">
+        <div className="px-4 md:px-6 pt-6 md:pt-8 pb-8 max-w-7xl mx-auto flex flex-col items-center w-full">
           {/* Cards from Casino Banner - Centered */}
-          <div className="mb-8 w-full flex justify-center mt-8">
-            <div className="flex flex-col gap-3">
-              <div className="flex gap-3">
+          <div className="mb-8 w-full flex justify-center mt-4 md:mt-8">
+            <div className="flex flex-col gap-3 w-full max-w-[720px]">
+              <h1 className="text-xl md:text-2xl font-bold text-white">Hi, CH</h1>
+              <div className="flex flex-col md:flex-row gap-3">
               {/* VIP Rewards Card - Wider */}
-              <Card className="bg-white/5 dark:bg-white/5 bg-gray-100 dark:bg-white/5 border-white/10 dark:border-white/10 border-gray-200 dark:border-white/10 flex-shrink-0 transition-colors duration-300" style={{ width: '280px', height: '140px' }}>
+              <Card className="bg-white/5 dark:bg-white/5 bg-gray-100 dark:bg-white/5 border-white/10 dark:border-white/10 border-gray-200 dark:border-white/10 flex-shrink-0 transition-colors duration-300 w-full md:w-[280px]" style={{ minHeight: '140px' }}>
                 <CardContent className="p-4">
                   <CardTitle className="text-sm text-white/70 dark:text-white/70 text-gray-800 dark:text-white/70 mb-4 transition-colors duration-300">Gold To Platinum I</CardTitle>
                   <VIPProgressBar value={45} />
@@ -2492,7 +2644,7 @@ function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setSh
               </Card>
               
               {/* Daily Races Card - Wider */}
-              <Card className="bg-white/5 dark:bg-white/5 bg-gray-100 dark:bg-white/5 border-white/10 dark:border-white/10 border-gray-200 dark:border-white/10 flex-shrink-0 transition-colors duration-300" style={{ width: '420px', height: '140px' }}>
+              <Card className="bg-white/5 dark:bg-white/5 bg-gray-100 dark:bg-white/5 border-white/10 dark:border-white/10 border-gray-200 dark:border-white/10 flex-1 transition-colors duration-300 w-full md:w-auto" style={{ minHeight: '140px' }}>
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between mb-4">
                     <CardTitle className="text-sm text-white/70 dark:text-white/70 text-gray-800 dark:text-white/70 mb-0 transition-colors duration-300">Daily Races</CardTitle>
@@ -2517,7 +2669,7 @@ function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setSh
                 </CardContent>
               </Card>
               </div>
-              <div className="flex gap-3">
+              <div className="flex flex-col md:flex-row gap-3">
                 <TotalRewardsCard />
                 <div className="flex-1 min-w-0">
                   <StreakCounter />
@@ -2542,7 +2694,7 @@ function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setSh
                 />
               </div>
               {/* Title */}
-              <h2 className="text-3xl font-bold text-white">The Rewards</h2>
+              <h2 className="text-2xl md:text-3xl font-bold text-white">The Rewards</h2>
             </div>
             <p className="text-white/70 mb-12 max-w-3xl mx-auto text-center">
               At BetOnline, you can start raking in the rewards as soon as you sign up. Through leveling up, your gaming experience will only get better with bigger rewards and benefits.
@@ -2665,6 +2817,156 @@ function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setSh
       </SidebarInset>
 
       )}
+      {/* VIP Footer - inside sidebar layout so it respects the sidebar width */}
+      <SidebarInset className="bg-[#1a1a1a] text-white !min-h-0">
+        <footer className="bg-[#2d2d2d] border-t border-white/10 text-white mt-12 relative z-0">
+          <div className="w-full px-4 md:px-6 py-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-6 mb-6">
+              <div>
+                <h3 className="font-semibold mb-3 text-sm">Quick Links</h3>
+                <ul className="space-y-1.5 text-xs text-white/70">
+                  <li><a href="#" className="hover:text-white transition-colors">About Us</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">Refer A Friend</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">Rules</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">Banking</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">Affiliates</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">Terms & Conditions</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">Responsible Gaming</a></li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="font-semibold mb-3 text-sm">Casino</h3>
+                <ul className="space-y-1.5 text-xs text-white/70">
+                  <li><a href="#" className="hover:text-white transition-colors">Play Casino</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">Blackjack</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">Baccarat</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">Craps</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">Roulette</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">Keno</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">Slots</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">Video Poker</a></li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="font-semibold mb-3 text-sm">Sports</h3>
+                <ul className="space-y-1.5 text-xs text-white/70">
+                  <li><a href="#" className="hover:text-white transition-colors">Sportsbook</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">NFL Betting Odds</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">NBA Betting Odds</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">MLB Betting Odds</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">NHL Betting Odds</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">NCAAB Betting Odds</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">Super Bowl Betting Odds</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">Boxing Betting Odds</a></li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="font-semibold mb-3 text-sm">Poker</h3>
+                <ul className="space-y-1.5 text-xs text-white/70">
+                  <li><a href="#" className="hover:text-white transition-colors">Play Poker</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">Download</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">Texas Holdem</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">Omaha Poker</a></li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="font-semibold mb-3 text-sm">Racebook</h3>
+                <ul className="space-y-1.5 text-xs text-white/70">
+                  <li><a href="#" className="hover:text-white transition-colors">Horse Betting</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">Kentucky Derby</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">Preakness Stakes</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">Belmont Stakes</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">Breeders Cup</a></li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="font-semibold mb-3 text-sm">Other</h3>
+                <ul className="space-y-1.5 text-xs text-white/70">
+                  <li><a href="#" className="hover:text-white transition-colors">Promos</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">News Room</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">Why BetOnline</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">BetOnline Vs Competition</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">VIP Rewards</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">Bet TV</a></li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="font-semibold mb-3 text-sm">Support</h3>
+                <ul className="space-y-1.5 text-xs text-white/70">
+                  <li><a href="#" className="hover:text-white transition-colors">Live Chat</a></li>
+                  <li><a href="#" className="hover:text-white transition-colors">Help Centre</a></li>
+                </ul>
+              </div>
+            </div>
+            <Separator className="bg-white/10 mb-6" />
+            <div className="mb-6">
+              <div className="flex items-center gap-2 mb-3">
+                <h3 className="font-semibold text-base">A TRUSTED & SAFE EXPERIENCE</h3>
+                <IconShield className="w-4 h-4" />
+              </div>
+              <p className="text-xs text-white/70 mb-4 max-w-2xl">
+                At BetOnline, our company's guiding principle is to establish long-lasting, positive relationships with our customers and within the online gaming community for over 25 years.
+              </p>
+              <div className="flex flex-wrap items-center gap-3">
+                {['Bitcoin', 'Ethereum', 'Litecoin', 'USDT', 'USDC', 'BitcoinCash', 'Dogecoin'].map((method) => (
+                  <PaymentLogo key={method} method={method} />
+                ))}
+                {['VISA', 'Mastercard', 'AMEX', 'Discover'].map((method) => (
+                  <PaymentLogo key={method} method={method} />
+                ))}
+                <SecurityBadge name="Responsible Gaming" iconPath="/banners/partners/responsible gaming.webp" />
+                <SecurityBadge name="SSL Secure" iconPath="/logos/payment/ssl-secure.svg" />
+                <div className="flex items-center justify-center w-7 h-7 rounded-full bg-red-500 border-2 border-white">
+                  <span className="text-[10px] font-bold text-white">18+</span>
+                </div>
+              </div>
+            </div>
+            <Separator className="bg-white/10 mb-6" />
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-4">
+              <div className="flex items-center gap-3">
+                <h3 className="font-semibold text-sm">OFFICIAL PARTNERS</h3>
+                <Separator orientation="vertical" className="h-5 bg-white/20" />
+                <div className="flex items-center gap-3">
+                  {['laliga', 'lfa', 'matchroom', 'golden boy'].map((partner) => (
+                    <div key={partner} className="flex items-center justify-center h-7 opacity-80 hover:opacity-100 transition-opacity">
+                      <Image
+                        src={`/banners/partners/${partner}.svg`}
+                        alt={partner}
+                        width={70}
+                        height={28}
+                        className="object-contain"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                  <IconBrandFacebook className="w-4 h-4" />
+                </Button>
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                  <IconBrandInstagram className="w-4 h-4" />
+                </Button>
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                  <IconBrandX className="w-4 h-4" />
+                </Button>
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                  <IconBrandYoutube className="w-4 h-4" />
+                </Button>
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-white/70 hover:text-white hover:bg-white/5 rounded-small">
+                  <IconBrandTiktok className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+            <div className="flex items-center justify-between text-xs text-white/50 pt-2 border-t border-white/5">
+              <div>Copyright \u00a92024 BetOnline.ag. All rights reserved.</div>
+              <div></div>
+            </div>
+          </div>
+        </footer>
+      </SidebarInset>
+      </div>{/* End content wrapper */}
     </div>
   )
 }
@@ -7857,8 +8159,29 @@ function VipDrawerContent({
             <div>
               <StreakCounter />
             </div>
+            {/* Telegram CTA */}
+            <a
+              href="https://t.me/betonline"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex items-center gap-4 rounded-xl bg-gradient-to-r from-[#229ED9]/10 to-[#229ED9]/5 border border-[#229ED9]/20 hover:border-[#229ED9]/40 p-4 transition-all"
+            >
+              <div className="w-12 h-12 rounded-xl bg-[#229ED9]/20 flex items-center justify-center flex-shrink-0 group-hover:bg-[#229ED9]/30 transition-colors">
+                <IconBrandTelegram className="w-6 h-6 text-[#229ED9]" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-white mb-0.5">Join our Telegram</p>
+                <p className="text-xs text-white/40 leading-snug">
+                  Get exclusive Cash Drop codes, promotions & rewards delivered straight to you.
+                </p>
+              </div>
+              <div className="flex-shrink-0">
+                <div className="px-3 py-1.5 rounded-lg bg-[#229ED9] text-white text-xs font-semibold group-hover:bg-[#1a8bc2] transition-colors">
+                  Join
+                </div>
+              </div>
+            </a>
 
-            
             <div>
               <h3 className="text-lg font-semibold text-white mb-4">My Benefits</h3>
               <Accordion type="single" defaultValue="Gold" collapsible className="w-full">
@@ -8263,19 +8586,19 @@ function VipDrawerContent({
             ) : (
               <>
                 {!claimedBoosts.has('weekly') && (
-                  <div className="bg-white/5 rounded-small p-4 border border-white/10 flex items-center gap-3">
+                  <div className="group flex items-center gap-4 rounded-xl bg-gradient-to-r from-[#fbbf24]/10 to-[#fbbf24]/5 border border-[#fbbf24]/20 p-4 transition-all">
                     <div className="flex-shrink-0">
-                      <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
-                        <IconCoins className="w-5 h-5 text-white" strokeWidth={1.5} />
+                      <div className="w-12 h-12 rounded-xl bg-[#fbbf24]/20 flex items-center justify-center">
+                        <IconCoins className="w-6 h-6 text-[#fbbf24]" strokeWidth={1.5} />
                       </div>
                     </div>
-                    <div className="flex-1">
-                      <div className="text-lg font-semibold text-white">$15.00</div>
-                      <div className="text-sm text-white/70">Weekly Cash Boost</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-lg font-bold text-white">$15.00</div>
+                      <div className="text-xs text-white/40">Weekly Cash Boost</div>
                     </div>
                     <Button 
                       variant="ghost"
-                      className="text-white/70 hover:text-white hover:bg-white/5 text-xs px-4 py-2 h-8 border border-white/20"
+                      className="text-white hover:bg-[#ee3536]/90 bg-[#ee3536] text-xs px-4 py-1.5 h-8 rounded-lg font-semibold border-0"
                       onClick={() => {
                         setBoostProcessing('weekly')
                         setTimeout(() => {
@@ -8302,19 +8625,19 @@ function VipDrawerContent({
                   </div>
                 )}
                 {!claimedBoosts.has('monthly') && (
-                  <div className="bg-white/5 rounded-small p-4 border border-white/10 flex items-center gap-3">
+                  <div className="group flex items-center gap-4 rounded-xl bg-gradient-to-r from-[#fbbf24]/10 to-[#fbbf24]/5 border border-[#fbbf24]/20 p-4 transition-all">
                     <div className="flex-shrink-0">
-                      <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
-                        <IconCoins className="w-5 h-5 text-white" strokeWidth={1.5} />
+                      <div className="w-12 h-12 rounded-xl bg-[#fbbf24]/20 flex items-center justify-center">
+                        <IconCoins className="w-6 h-6 text-[#fbbf24]" strokeWidth={1.5} />
                       </div>
                     </div>
-                    <div className="flex-1">
-                      <div className="text-lg font-semibold text-white">$20.00</div>
-                      <div className="text-sm text-white/70">Monthly Cash Boost</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-lg font-bold text-white">$20.00</div>
+                      <div className="text-xs text-white/40">Monthly Cash Boost</div>
                     </div>
                     <Button 
                       variant="ghost"
-                      className="text-white/70 hover:text-white hover:bg-white/5 text-xs px-4 py-2 h-8 border border-white/20"
+                      className="text-white hover:bg-[#ee3536]/90 bg-[#ee3536] text-xs px-4 py-1.5 h-8 rounded-lg font-semibold border-0"
                       onClick={() => {
                         setBoostProcessing('monthly')
                         setTimeout(() => {
@@ -8346,20 +8669,7 @@ function VipDrawerContent({
         )}
         
         {vipActiveTab === 'Bet & Get' && (
-          <Card className="bg-white/3 border-white/5">
-            <CardContent className={cn(isMobile ? "p-4" : "p-8")}>
-              <div className="flex flex-col items-center justify-center">
-                <div className="w-20 h-20 rounded-2xl bg-white/3 border border-white/5 flex items-center justify-center mb-6">
-                  <IconGift className="w-10 h-10 text-white/40" strokeWidth={1.5} />
-                </div>
-                <div className="text-center space-y-2">
-                  <p className="text-white/70 text-sm leading-relaxed">
-                    Bet & Get promotions will appear here
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <BetAndGet />
         )}
         
         {vipActiveTab === 'Reloads' && (
@@ -8367,20 +8677,7 @@ function VipDrawerContent({
         )}
         
         {vipActiveTab === 'Cash Drop' && (
-          <Card className="bg-white/3 border-white/5">
-            <CardContent className={cn(isMobile ? "p-4" : "p-8")}>
-              <div className="flex flex-col items-center justify-center">
-                <div className="w-20 h-20 rounded-2xl bg-white/3 border border-white/5 flex items-center justify-center mb-6">
-                  <IconCurrencyDollar className="w-10 h-10 text-white/40" strokeWidth={1.5} />
-                </div>
-                <div className="text-center space-y-2">
-                  <p className="text-white/70 text-sm leading-relaxed">
-                    Cash Drop rewards will appear here
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <CashDropCode />
         )}
       </div>
     </div>
@@ -8411,6 +8708,7 @@ function NavTestPageContent() {
   const [balance, setBalance] = useState(10)
   const [displayBalance, setDisplayBalance] = useState(10)
   useRainBalance(setBalance, setDisplayBalance)
+  const pendingBalanceRef = useRef(0)
   const [claimedBoosts, setClaimedBoosts] = useState<Set<string>>(new Set())
   const [boostProcessing, setBoostProcessing] = useState<string | null>(null)
   const [boostClaimMessage, setBoostClaimMessage] = useState<{ amount: number } | null>(null)
@@ -8625,6 +8923,24 @@ function NavTestPageContent() {
     console.log('depositDrawerOpen state changed to:', depositDrawerOpen)
   }, [depositDrawerOpen])
 
+  // Sync URL when VIP Rewards page is shown/hidden
+  const originalPathRef = useRef(typeof window !== 'undefined' ? window.location.pathname : '/sports/football')
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    if (showVipRewards) {
+      // Save current path before switching
+      if (window.location.pathname !== '/vip-rewards') {
+        originalPathRef.current = window.location.pathname
+      }
+      window.history.replaceState(null, '', '/vip-rewards')
+    } else {
+      // Restore previous path when leaving VIP
+      if (window.location.pathname === '/vip-rewards') {
+        window.history.replaceState(null, '', originalPathRef.current || '/sports/football')
+      }
+    }
+  }, [showVipRewards])
+
   const handleDepositDrawerOpenChange = React.useCallback((open: boolean) => {
     setDepositDrawerOpen(open)
     if (!open) {
@@ -8644,47 +8960,38 @@ function NavTestPageContent() {
   }, [isMobile])
 
   const handleBoostClaimed = React.useCallback((amount: number) => {
-    // Balance will be updated and animated when drawer closes
-    // This callback is just for tracking purposes
+    // Track pending balance increase — will animate when drawer closes
+    pendingBalanceRef.current += amount
   }, [])
 
   const handleVipDrawerOpenChange = React.useCallback((open: boolean) => {
     if (!open) {
-      // Drawer is closing, check if there are claimed boosts to process
-      const claimedAmount = Array.from(claimedBoosts).reduce((total, boostId) => {
-        if (boostId === 'weekly') return total + 15
-        if (boostId === 'monthly') return total + 20
-        return total
-      }, 0)
-      
-      if (claimedAmount > 0) {
-        // Wait a bit for drawer to close, then update and animate balance
+      // Drawer is closing — animate any pending balance from claimed boosts
+      const pendingAmount = pendingBalanceRef.current
+      if (pendingAmount > 0) {
+        pendingBalanceRef.current = 0
+        // Wait for drawer close animation, then roll up balance
         setTimeout(() => {
-          // Update the actual balance
-          const newBalance = balance + claimedAmount
-          setBalance(newBalance)
-          
-          // Animate the balance roll-up
-          const startBalance = displayBalance
-          const endBalance = newBalance
-          const duration = 1000
-          const startTime = Date.now()
-          
-          const animate = () => {
-            const elapsed = Date.now() - startTime
-            const progress = Math.min(elapsed / duration, 1)
-            const easeOutCubic = 1 - Math.pow(1 - progress, 3)
-            const currentBalance = startBalance + (endBalance - startBalance) * easeOutCubic
-            setDisplayBalance(currentBalance)
-            
-            if (progress < 1) {
+          setBalance(prev => {
+            const newBal = +(prev + pendingAmount).toFixed(2)
+            setDisplayBalance(currentDisplay => {
+              const start = currentDisplay
+              const end = newBal
+              const duration = 1500
+              const startTime = performance.now()
+              const animate = (now: number) => {
+                const elapsed = now - startTime
+                const progress = Math.min(elapsed / duration, 1)
+                const eased = 1 - Math.pow(1 - progress, 3)
+                setDisplayBalance(+(start + (end - start) * eased).toFixed(2))
+                if (progress < 1) requestAnimationFrame(animate)
+              }
               requestAnimationFrame(animate)
-            } else {
-              setDisplayBalance(endBalance)
-            }
-          }
-          requestAnimationFrame(animate)
-        }, 300)
+              return currentDisplay
+            })
+            return newBal
+          })
+        }, 500)
       }
       
       // Reset boost states
@@ -8698,7 +9005,7 @@ function NavTestPageContent() {
       }
     }
     setVipDrawerOpen(open)
-  }, [claimedBoosts, balance, displayBalance, isMobile])
+  }, [isMobile])
 
   // Brand configurations using design system tokens
   const brands = {
@@ -10708,6 +11015,21 @@ function NavTestPageContent() {
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
                 >
+                  {/* Spacer for VIP page — accounts for fixed header + quick links on mobile */}
+                  <motion.div 
+                    initial={false}
+                    animate={isMobile ? {
+                      height: quickLinksOpen ? '40px' : '0px'
+                    } : {
+                      height: '0px'
+                    }}
+                    transition={{
+                      type: "tween",
+                      ease: "linear",
+                      duration: 0.3
+                    }}
+                    style={{ overflow: 'hidden' }}
+                  />
                   <VIPRewardsPage 
                     brandPrimary={brandPrimary || '#ee3536'} 
                     setVipDrawerOpen={setVipDrawerOpen}
@@ -10722,6 +11044,7 @@ function NavTestPageContent() {
                     previousPageState={previousPageState}
                     setPreviousPageState={setPreviousPageState}
                     setActiveSubNav={setActiveSubNav}
+                    quickLinksOpen={quickLinksOpen}
                   />
                 </motion.div>
               ) : showSports ? (
@@ -13383,6 +13706,8 @@ function NavTestPageContent() {
           showBetslip={true}
           betCount={bets.length}
           isSearchActive={searchOverlayOpen}
+          showSearch={!showVipRewards}
+          showFavorites={!showVipRewards}
             />
       )}
     </div>

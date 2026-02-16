@@ -2,6 +2,8 @@
 import { useRainBalance } from '@/hooks/use-rain-balance'
 import { StreakCounter } from '@/components/vip/streak-counter'
 import { ReloadClaim } from '@/components/vip/reload-claim'
+import { CashDropCode } from '@/components/vip/cash-drop-code'
+import { BetAndGet } from '@/components/vip/bet-and-get'
 
 // Home page - uses global header, Top Events carousel, hero banner, no sidebar
 import { useState, useEffect, useRef, useCallback } from 'react'
@@ -1093,19 +1095,19 @@ function VipDrawerContent({
             ) : (
               <>
                 {!claimedBoosts.has('weekly') && (
-                  <div className="bg-white/5 rounded-small p-4 border border-white/10 flex items-center gap-3">
+                  <div className="group flex items-center gap-4 rounded-xl bg-gradient-to-r from-[#fbbf24]/10 to-[#fbbf24]/5 border border-[#fbbf24]/20 p-4 transition-all">
                     <div className="flex-shrink-0">
-                      <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
-                        <IconCoins className="w-5 h-5 text-white" strokeWidth={1.5} />
+                      <div className="w-12 h-12 rounded-xl bg-[#fbbf24]/20 flex items-center justify-center">
+                        <IconCoins className="w-6 h-6 text-[#fbbf24]" strokeWidth={1.5} />
                       </div>
                     </div>
-                    <div className="flex-1">
-                      <div className="text-lg font-semibold text-white">$15.00</div>
-                      <div className="text-sm text-white/70">Weekly Cash Boost</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-lg font-bold text-white">$15.00</div>
+                      <div className="text-xs text-white/40">Weekly Cash Boost</div>
                     </div>
                     <Button 
                       variant="ghost"
-                      className="text-white/70 hover:text-white hover:bg-white/5 text-xs px-4 py-2 h-8 border border-white/20"
+                      className="text-white hover:bg-[#ee3536]/90 bg-[#ee3536] text-xs px-4 py-1.5 h-8 rounded-lg font-semibold border-0"
                       onClick={() => {
                         setBoostProcessing('weekly')
                         setTimeout(() => {
@@ -1132,19 +1134,19 @@ function VipDrawerContent({
                   </div>
                 )}
                 {!claimedBoosts.has('monthly') && (
-                  <div className="bg-white/5 rounded-small p-4 border border-white/10 flex items-center gap-3">
+                  <div className="group flex items-center gap-4 rounded-xl bg-gradient-to-r from-[#fbbf24]/10 to-[#fbbf24]/5 border border-[#fbbf24]/20 p-4 transition-all">
                     <div className="flex-shrink-0">
-                      <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
-                        <IconCoins className="w-5 h-5 text-white" strokeWidth={1.5} />
+                      <div className="w-12 h-12 rounded-xl bg-[#fbbf24]/20 flex items-center justify-center">
+                        <IconCoins className="w-6 h-6 text-[#fbbf24]" strokeWidth={1.5} />
                       </div>
                     </div>
-                    <div className="flex-1">
-                      <div className="text-lg font-semibold text-white">$20.00</div>
-                      <div className="text-sm text-white/70">Monthly Cash Boost</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-lg font-bold text-white">$20.00</div>
+                      <div className="text-xs text-white/40">Monthly Cash Boost</div>
                     </div>
                     <Button 
                       variant="ghost"
-                      className="text-white/70 hover:text-white hover:bg-white/5 text-xs px-4 py-2 h-8 border border-white/20"
+                      className="text-white hover:bg-[#ee3536]/90 bg-[#ee3536] text-xs px-4 py-1.5 h-8 rounded-lg font-semibold border-0"
                       onClick={() => {
                         setBoostProcessing('monthly')
                         setTimeout(() => {
@@ -1176,20 +1178,7 @@ function VipDrawerContent({
         )}
         
         {vipActiveTab === 'Bet & Get' && (
-          <Card className="bg-white/3 border-white/5">
-            <CardContent className={cn(isMobile ? "p-4" : "p-8")}>
-              <div className="flex flex-col items-center justify-center">
-                <div className="w-20 h-20 rounded-2xl bg-white/3 border border-white/5 flex items-center justify-center mb-6">
-                  <IconGift className="w-10 h-10 text-white/40" strokeWidth={1.5} />
-                </div>
-                <div className="text-center space-y-2">
-                  <p className="text-white/70 text-sm leading-relaxed">
-                    Bet & Get promotions will appear here
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <BetAndGet />
         )}
         
         {vipActiveTab === 'Reloads' && (
@@ -1197,20 +1186,7 @@ function VipDrawerContent({
         )}
         
         {vipActiveTab === 'Cash Drop' && (
-          <Card className="bg-white/3 border-white/5">
-            <CardContent className={cn(isMobile ? "p-4" : "p-8")}>
-              <div className="flex flex-col items-center justify-center">
-                <div className="w-20 h-20 rounded-2xl bg-white/3 border border-white/5 flex items-center justify-center mb-6">
-                  <IconCurrencyDollar className="w-10 h-10 text-white/40" strokeWidth={1.5} />
-                </div>
-                <div className="text-center space-y-2">
-                  <p className="text-white/70 text-sm leading-relaxed">
-                    Cash Drop rewards will appear here
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <CashDropCode />
         )}
       </div>
     </div>
@@ -1234,6 +1210,7 @@ function HomePageContent() {
   const [balance, setBalance] = useState(10)
   const [displayBalance, setDisplayBalance] = useState(10)
   useRainBalance(setBalance, setDisplayBalance)
+  const pendingBalanceRef = useRef(0)
   const [currentTime, setCurrentTime] = useState<string>('')
   const [vipDrawerOpen, setVipDrawerOpen] = useState(false)
   const [accountDrawerOpen, setAccountDrawerOpen] = useState(false)
@@ -1594,6 +1571,32 @@ function HomePageContent() {
       if (jackpotTimerRef.current) {
         clearTimeout(jackpotTimerRef.current)
         jackpotTimerRef.current = null
+      }
+      // Animate any pending balance (e.g. jackpot winnings) now that launcher is closed
+      const pendingAmount = pendingBalanceRef.current
+      if (pendingAmount > 0) {
+        pendingBalanceRef.current = 0
+        setTimeout(() => {
+          setBalance(prev => {
+            const newBal = +(prev + pendingAmount).toFixed(2)
+            setDisplayBalance(currentDisplay => {
+              const start = currentDisplay
+              const end = newBal
+              const duration = 2000
+              const startTime = performance.now()
+              const animate = (now: number) => {
+                const elapsed = now - startTime
+                const progress = Math.min(elapsed / duration, 1)
+                const eased = 1 - Math.pow(1 - progress, 3)
+                setDisplayBalance(+(start + (end - start) * eased).toFixed(2))
+                if (progress < 1) requestAnimationFrame(animate)
+              }
+              requestAnimationFrame(animate)
+              return currentDisplay
+            })
+            return newBal
+          })
+        }, 400)
       }
     } else {
       // Reset image loaded state when new game is selected
@@ -3331,45 +3334,14 @@ function HomePageContent() {
                 gameName={selectedGame.title}
                 onClose={() => {
                   setShowJackpot(false)
-                  const jackpotAmount = 250000
-                  const newBalance = balance + jackpotAmount
-                  setBalance(newBalance)
-                  setTimeout(() => {
-                    const startBal = displayBalance
-                    const endBal = newBalance
-                    const duration = 2000
-                    const startTime = Date.now()
-                    const animateBalance = () => {
-                      const elapsed = Date.now() - startTime
-                      const progress = Math.min(elapsed / duration, 1)
-                      const eased = 1 - Math.pow(1 - progress, 3)
-                      setDisplayBalance(startBal + (endBal - startBal) * eased)
-                      if (progress < 1) requestAnimationFrame(animateBalance)
-                      else setDisplayBalance(endBal)
-                    }
-                    requestAnimationFrame(animateBalance)
-                  }, 400)
+                  // Store jackpot winnings — balance will animate when game launcher closes
+                  pendingBalanceRef.current += 250000
                 }}
                 onShareToChat={() => {
                   setShowJackpot(false)
-                  const jackpotAmount = 250000
-                  const newBalance = balance + jackpotAmount
-                  setBalance(newBalance)
-                  setTimeout(() => {
-                    const startBal = displayBalance
-                    const endBal = newBalance
-                    const duration = 2000
-                    const startTime = Date.now()
-                    const animateBalance = () => {
-                      const elapsed = Date.now() - startTime
-                      const progress = Math.min(elapsed / duration, 1)
-                      const eased = 1 - Math.pow(1 - progress, 3)
-                      setDisplayBalance(startBal + (endBal - startBal) * eased)
-                      if (progress < 1) requestAnimationFrame(animateBalance)
-                      else setDisplayBalance(endBal)
-                    }
-                    requestAnimationFrame(animateBalance)
-                  }, 400)
+                  // Store jackpot winnings — balance will animate when game launcher closes
+                  pendingBalanceRef.current += 250000
+                  // Share jackpot win to chat
                   const chatStore = useChatStore.getState()
                   chatStore.setIsOpen(true)
                   chatStore.shareBetToChat([{
