@@ -6891,14 +6891,14 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen }: { brandPrimary: stri
   ]
 
   const topFeatures = [
-    { title: 'All-In Cash Out', description: 'Purchase the equity of your hand at any point before the river and protect your winning hands.' },
-    { title: 'Throwables', description: 'Fun interactive way to express yourself at the tables. What happened in the hand and how did it make you feel.' },
-    { title: 'Straddle', description: 'Experience the thrill of bigger pots and gain a competitive edge by straddling in poker cash games. Try it now.' },
-    { title: 'Bomb Pot Discard', description: 'Welcome to the most exciting twist on Texas Hold\'em to date! Our new five-handed bomb pot discard game, designed for players who love big pots, bold plays.' },
-    { title: 'Heads-Up Display', description: 'Heads-Up Display (HUD) is an easy-to-use and helpful tool that displays on the poker table to give you key stats.' },
-    { title: 'Triple Threat Tournaments', description: 'Introducing Triple Threat Tournaments, where every game gives you three ways to cash-in bigtime!' },
-    { title: 'Mystery Bounty Tournaments', description: 'Welcome to Mystery Bounty Tournaments, where poker players get the chance to turn their opponents into treasure chests of cash prizes.' },
-    { title: 'Run It Multiple Times', description: 'All-in? Not sure of getting the win… Run it multiple times to split the remaining board across multiple outcomes!' },
+    { title: 'All-In Cash Out', description: 'Purchase the equity of your hand at any point before the river and protect your winning hands.', image: '/banners/poker/all in cash out.png' },
+    { title: 'Throwables', description: 'Fun interactive way to express yourself at the tables. What happened in the hand and how did it make you feel.', image: '/banners/poker/throwables.webp' },
+    { title: 'Straddle', description: 'Experience the thrill of bigger pots and gain a competitive edge by straddling in poker cash games. Try it now.', image: '/banners/poker/straddle.png' },
+    { title: 'Bomb Pot Discard', description: 'Welcome to the most exciting twist on Texas Hold\'em to date! Our new five-handed bomb pot discard game, designed for players who love big pots, bold plays.', image: '/banners/poker/bomb_pots.png' },
+    { title: 'Heads-Up Display', description: 'Heads-Up Display (HUD) is an easy-to-use and helpful tool that displays on the poker table to give you key stats.', image: '/banners/poker/heads up.webp' },
+    { title: 'Triple Threat Tournaments', description: 'Introducing Triple Threat Tournaments, where every game gives you three ways to cash-in bigtime!', image: '/banners/poker/tripple threat.png' },
+    { title: 'Mystery Bounty Tournaments', description: 'Welcome to Mystery Bounty Tournaments, where poker players get the chance to turn their opponents into treasure chests of cash prizes.', image: null },
+    { title: 'Run It Multiple Times', description: 'All-in? Not sure of getting the win… Run it multiple times to split the remaining board across multiple outcomes!', image: null },
   ]
 
   return (
@@ -7145,12 +7145,20 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen }: { brandPrimary: stri
                 <CarouselContent className="ml-4 md:ml-6 -mr-2 md:-mr-4">
                   {topFeatures.map((feature, index) => (
                     <CarouselItem key={index} className={`${index === 0 ? 'pl-0' : 'pl-3 md:pl-4'} basis-auto flex-shrink-0`}>
-                      <Card className="bg-white/[0.04] border-white/[0.06] hover:bg-white/[0.06] transition-colors h-full w-[260px] md:w-[300px]">
-                        <CardContent className="p-5">
-                          <div className="w-full aspect-[4/3] rounded-lg bg-white/[0.06] flex items-center justify-center mb-4 overflow-hidden relative">
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.03] to-transparent animate-[shimmer_2s_infinite]" style={{ backgroundSize: '200% 100%' }} />
-                            <svg className="w-10 h-10 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                          </div>
+                      <Card className="bg-white/[0.04] border-white/[0.06] hover:bg-white/[0.06] transition-colors h-full w-[260px] md:w-[300px] overflow-hidden">
+                        <div className="w-full aspect-[16/10] bg-white/[0.06] overflow-hidden relative">
+                          {feature.image ? (
+                            <div className="absolute inset-0 -right-[20px] overflow-hidden">
+                              <Image src={feature.image} alt={feature.title} fill className="object-cover object-right" />
+                            </div>
+                          ) : (
+                            <>
+                              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.03] to-transparent animate-[shimmer_2s_infinite]" style={{ backgroundSize: '200% 100%' }} />
+                              <svg className="w-10 h-10 text-white/20 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                            </>
+                          )}
+                        </div>
+                        <CardContent className="p-4">
                           <h3 className="text-base font-semibold text-white mb-2 text-left">{feature.title}</h3>
                           <p className="text-xs text-white/50 leading-relaxed text-left line-clamp-3">{feature.description}</p>
             </CardContent>
@@ -7171,9 +7179,8 @@ function PokerLandingPage({ brandPrimary, quickLinksOpen }: { brandPrimary: stri
           <section className="px-4 md:px-6 py-10">
             <div className="max-w-5xl mx-auto">
               <div className="flex flex-col md:flex-row items-center gap-8">
-                <div className="flex-1 w-full md:w-auto aspect-[4/3] max-w-md rounded-xl bg-white/[0.06] flex items-center justify-center overflow-hidden relative">
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.03] to-transparent animate-[shimmer_2s_infinite]" style={{ backgroundSize: '200% 100%' }} />
-                  <svg className="w-12 h-12 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                <div className="flex-1 w-full md:w-auto aspect-[4/3] max-w-md rounded-xl bg-white/[0.06] overflow-hidden relative">
+                  <Image src="/banners/poker/new to betonline.jpg" alt="New to BetOnline Poker" fill className="object-cover" />
                 </div>
                 <div className="flex-1">
                   <h2 className="text-2xl md:text-3xl font-bold text-white mb-4 italic">New to Betonline Poker ?</h2>
