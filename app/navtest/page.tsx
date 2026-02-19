@@ -7191,7 +7191,7 @@ function NavTestPageContent() {
                   { label: 'Live Betting', onClick: () => { window.location.href = '/live-betting'; setQuickLinksOpen(false); } },
                   { label: 'Casino', onClick: () => { setShowSports(false); setShowVipRewards(false); setActiveSubNav('For You'); setQuickLinksOpen(false); } },
                   { label: 'Live Casino', onClick: () => { setShowSports(false); setShowVipRewards(false); setActiveSubNav('Live'); setQuickLinksOpen(false); } },
-                  { label: 'Poker', onClick: () => { router.push('/casino?poker=true'); setQuickLinksOpen(false); } },
+                  { label: 'Poker', onClick: () => { window.location.href = '/casino?poker=true'; setQuickLinksOpen(false); } },
                   { label: 'VIP Rewards', onClick: () => { setShowVipRewards(true); setShowSports(false); setQuickLinksOpen(false); } },
                   { label: 'Other', onClick: () => { setQuickLinksOpen(false); } },
                 ].map((item) => (
