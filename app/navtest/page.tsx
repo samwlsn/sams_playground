@@ -119,7 +119,7 @@ import {
   IconDownload,
   IconExternalLink,
   IconMaximize
-, IconBrandTelegram, IconRefresh, IconParachute, IconTargetArrow} from '@tabler/icons-react'
+, IconBrandTelegram, IconRefresh, IconParachute, IconTargetArrow, IconMessageCircle2} from '@tabler/icons-react'
 import { colorTokenMap } from '@/lib/agent/designSystem'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
