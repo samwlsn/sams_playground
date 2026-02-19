@@ -123,6 +123,7 @@ import {
   IconShare
 , IconMessageCircle2, IconTrash, IconBrandTelegram, IconRefresh, IconParachute, IconTargetArrow} from '@tabler/icons-react'
 import { SportsTrackerWidget } from '@/components/sports-tracker-widget'
+import { useWidgetDockStore } from '@/lib/store/widgetDockStore'
 import { colorTokenMap } from '@/lib/agent/designSystem'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
@@ -3335,7 +3336,8 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
   // Tracker widget state
   const [trackerEvent, setTrackerEvent] = useState<{
     id: number; team1: string; team2: string; league: string; country: string;
-    score?: { team1: number; team2: number }; minute?: string; isLive?: boolean
+    score?: { team1: number; team2: number }; minute?: string; isLive?: boolean;
+    statscoreEventId?: number; statscoreConfigId?: string
   } | null>(null)
   const sidebarPixelWidth = isMobile ? 0 : (sidebarState === 'expanded' ? 256 : 48)
   const [pendingBets, setPendingBets] = useState<Array<{
@@ -7125,7 +7127,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                         onClick={(e) => {
                           e.preventDefault()
                           e.stopPropagation()
-                          setTrackerEvent({ id: event.id, team1: event.team1, team2: event.team2, league: event.league, country: event.country, score: event.score, minute: event.isLive ? "45'" : undefined, isLive: event.isLive })
+                          useWidgetDockStore.getState().openWidget({ id: event.id, team1: event.team1, team2: event.team2, league: event.league, country: event.country, score: event.score, minute: event.isLive ? "45'" : undefined, isLive: event.isLive, statscoreEventId: 6188732, statscoreConfigId: '60dc694d4321eaff1879f0cf' })
                         }}
                         className="text-[10px] text-white/70 hover:text-white transition-colors cursor-pointer flex items-center gap-1"
                       >

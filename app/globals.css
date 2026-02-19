@@ -1137,7 +1137,41 @@ main[data-sidebar="inset"] > * {
     right: 364px !important;
   }
 
-  /* Smooth transition when chat closes */
+  /* ─── Dock-Open (widget dock without chat) ─── */
+  html.dock-open:not(.chat-open) body {
+    padding-right: var(--dock-panel-width, 300px) !important;
+    transition: padding-right 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+  html.dock-open:not(.chat-open) [data-sub-nav] {
+    right: var(--dock-panel-width, 300px) !important;
+    transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+  html.dock-open:not(.chat-open) .group\/sidebar-wrapper {
+    max-width: calc(100vw - var(--dock-panel-width, 300px)) !important;
+    transition: max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+  html.dock-open:not(.chat-open) [data-toast-notification] {
+    right: calc(var(--dock-panel-width, 300px) + 24px) !important;
+  }
+
+  /* ─── Both Dock + Chat open ─── */
+  html.dock-open.chat-open body {
+    padding-right: calc(var(--dock-panel-width, 300px) + 340px) !important;
+    transition: padding-right 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+  html.dock-open.chat-open [data-sub-nav] {
+    right: calc(var(--dock-panel-width, 300px) + 340px) !important;
+    transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+  html.dock-open.chat-open .group\/sidebar-wrapper {
+    max-width: calc(100vw - var(--dock-panel-width, 300px) - 340px) !important;
+    transition: max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  }
+  html.dock-open.chat-open [data-toast-notification] {
+    right: calc(var(--dock-panel-width, 300px) + 364px) !important;
+  }
+
+  /* Smooth transition when chat/dock closes */
   body {
     transition: padding-right 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   }

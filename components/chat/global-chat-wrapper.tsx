@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react"
 import { createPortal } from "react-dom"
 import { usePathname } from "next/navigation"
 import ChatPanel from "@/components/chat/chat-panel"
+import { WidgetDockManager } from "@/components/sports-tracker-widget"
 import { useChatStore } from "@/lib/store/chatStore"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { startChatSimulator, stopChatSimulator } from "@/lib/chat-simulator"
@@ -83,7 +84,10 @@ export default function GlobalChatWrapper({ children }: { children: React.ReactN
     <>
       {children}
       {portalEl && !isMaintenancePage && createPortal(
-        <ChatPanel />,
+        <>
+          <ChatPanel />
+          <WidgetDockManager />
+        </>,
         portalEl
       )}
     </>

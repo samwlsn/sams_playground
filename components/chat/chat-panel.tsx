@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useEffect, useState, useMemo, useCallback } from "react"
+import { useRef, useEffect, useMemo, useCallback } from "react"
 import { useChatStore } from "@/lib/store/chatStore"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { motion, AnimatePresence, useMotionValue, useDragControls, PanInfo } from "framer-motion"
@@ -20,19 +20,6 @@ function DesktopChatPanel() {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const isNearBottomRef = useRef(true)
   const hasInitScrolled = useRef(false)
-
-  // Track whether the tracker widget is docked above us (via CSS var)
-  const [trackerDocked, setTrackerDocked] = useState(false)
-  useEffect(() => {
-    const check = () => {
-      const val = getComputedStyle(document.documentElement).getPropertyValue('--tracker-is-docked').trim()
-      setTrackerDocked(val === '1')
-    }
-    check()
-    // Poll briefly — the CSS var changes on drag end
-    const interval = setInterval(check, 200)
-    return () => clearInterval(interval)
-  }, [])
 
   // Show messages for the active room only
   const messages = useMemo(() => {
@@ -78,13 +65,11 @@ function DesktopChatPanel() {
           animate={{ x: 0 }}
           exit={{ x: 340 }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          className={`fixed right-0 bottom-0 w-[340px] z-[200] border-l border-white/10 overflow-hidden ${trackerDocked ? '' : ''}`}
+          className="fixed right-0 bottom-0 w-[340px] z-[200] border-l border-white/10 overflow-hidden"
           style={{
             pointerEvents: 'auto',
             backgroundColor: 'var(--ds-page-bg, #222222)',
-            top: 'calc(64px + var(--tracker-above-chat-height, 0px))',
-            // When tracker is docked above, remove top border for seamless connection
-            ...(trackerDocked ? { borderTop: 'none' } : {}),
+            top: 64,
           }}
         >
           <div className="flex flex-col h-full w-[340px]">
