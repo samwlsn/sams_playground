@@ -2441,7 +2441,7 @@ function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setSh
           style={{ top: quickLinksOpen ? 104 : 64 }}
         >
           <div className="overflow-x-auto scrollbar-hide px-3 py-2" style={{ WebkitOverflowScrolling: 'touch' }}>
-            <AnimateTabs value={vipActiveSidebarItem} onValueChange={(value) => setVipActiveSidebarItem(value)} className="w-max">
+            <AnimateTabs value={vipActiveSidebarItem} onValueChange={(value) => setVipActiveSidebarItem?.(value)} className="w-max">
               <AnimateTabsList className="bg-white/5 p-0.5 h-auto gap-1 rounded-3xl border-0 relative transition-colors duration-300">
                 {[
                   { id: 'Overview', label: 'Dashboard' },
