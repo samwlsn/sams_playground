@@ -9558,7 +9558,7 @@ function NavTestPageContent() {
   // Sync initialVipSidebarItem -> vipActiveSidebarItem
   useEffect(() => {
     if (initialVipSidebarItem) {
-      setVipActiveSidebarItem(initialVipSidebarItem)
+      setVipActiveSidebarItem?.(initialVipSidebarItem)
       setTimeout(() => setInitialVipSidebarItem(null), 100)
     }
   }, [initialVipSidebarItem])

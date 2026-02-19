@@ -2397,7 +2397,7 @@ function VIPRewardsPage({ brandPrimary, setVipDrawerOpen, setVipActiveTab, setSh
   // Update sidebar item when initialVipSidebarItem changes
   useEffect(() => {
     if (initialVipSidebarItem) {
-      setVipActiveSidebarItem(initialVipSidebarItem)
+      setVipActiveSidebarItem?.(initialVipSidebarItem)
       if (setInitialVipSidebarItem) {
         setTimeout(() => {
           setInitialVipSidebarItem(null)
@@ -9257,7 +9257,7 @@ function NavTestPageContent() {
   // Sync initialVipSidebarItem -> vipActiveSidebarItem
   useEffect(() => {
     if (initialVipSidebarItem) {
-      setVipActiveSidebarItem(initialVipSidebarItem)
+      setVipActiveSidebarItem?.(initialVipSidebarItem)
       setTimeout(() => setInitialVipSidebarItem(null), 100)
     }
   }, [initialVipSidebarItem])
@@ -9882,8 +9882,8 @@ function NavTestPageContent() {
                       onClick={(e) => {
                         e.preventDefault()
                         e.stopPropagation()
-                        setShowVipRewards(true)
-                        setShowSports(false)
+                          setShowVipRewards(true)
+                          setShowSports(false)
                         window.scrollTo(0, 0)
                       }}
                       data-active={showVipRewards}
@@ -10850,7 +10850,7 @@ function NavTestPageContent() {
                                         e.stopPropagation()
                                         setShowQuickLinksMenu(false)
                                         setOpenMobile(false)
-                                        setShowSports(true)
+                                          setShowSports(true)
                                           setShowVipRewards(false)
                                           setQuickLinksOpen(false)
                                           window.scrollTo(0, 0)
@@ -10878,7 +10878,7 @@ function NavTestPageContent() {
                                         e.stopPropagation()
                                         setShowQuickLinksMenu(false)
                                         setOpenMobile(false)
-                                        setShowSports(false)
+                                          setShowSports(false)
                                           setShowVipRewards(false)
                                           setActiveSubNav('For You')
                                           setQuickLinksOpen(false)
@@ -10894,7 +10894,7 @@ function NavTestPageContent() {
                                         e.stopPropagation()
                                         setShowQuickLinksMenu(false)
                                         setOpenMobile(false)
-                                        setShowSports(false)
+                                          setShowSports(false)
                                           setShowVipRewards(false)
                                           setActiveSubNav('Live')
                                           setShowAllGames(false)
@@ -14118,6 +14118,6 @@ export default function NavTestPage() {
   return (
     <Suspense fallback={<div className="w-full bg-[#1a1a1a] min-h-screen" />}>
       <SportsRedirect />
-    </Suspense>
+      </Suspense>
   )
 }

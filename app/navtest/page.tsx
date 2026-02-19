@@ -6732,6 +6732,7 @@ function VipDrawerContent({
 }
 
 function NavTestPageContent() {
+  const router = useRouter()
   const isMobile = useIsMobile()
   const [mounted, setMounted] = useState(false)
   const [activeFilter, setActiveFilter] = useState('For You')
@@ -6822,7 +6823,7 @@ function NavTestPageContent() {
   // Sync initialVipSidebarItem -> vipActiveSidebarItem
   useEffect(() => {
     if (initialVipSidebarItem) {
-      setVipActiveSidebarItem(initialVipSidebarItem)
+      setVipActiveSidebarItem?.(initialVipSidebarItem)
       setTimeout(() => setInitialVipSidebarItem(null), 100)
     }
   }, [initialVipSidebarItem])
