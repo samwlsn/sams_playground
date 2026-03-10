@@ -3518,10 +3518,27 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
   // Favorite leagues state (persisted in localStorage)
   const [favoriteLeagues, setFavoriteLeagues] = useState<string[]>([])
   
+  // Favorite soccer teams (for My Teams' Next Fixtures) - persisted in localStorage
+  const [favoriteSoccerTeams, setFavoriteSoccerTeams] = useState<string[]>([])
+  const [showMyTeamsOnboarding, setShowMyTeamsOnboarding] = useState(false)
+  const [myTeamsOnboardingSelections, setMyTeamsOnboardingSelections] = useState<string[]>([])
+  
+  // My Teams' Next Fixtures carousel state
+  const [myTeamsCarouselApi, setMyTeamsCarouselApi] = useState<CarouselApi>()
+  const [myTeamsCanScrollPrev, setMyTeamsCanScrollPrev] = useState(false)
+  const [myTeamsCanScrollNext, setMyTeamsCanScrollNext] = useState(false)
+  
   useEffect(() => {
     const stored = localStorage.getItem('favoriteLeagues')
     if (stored) {
       try { setFavoriteLeagues(JSON.parse(stored)) } catch {}
+    }
+  }, [])
+  
+  useEffect(() => {
+    const stored = localStorage.getItem('favoriteSoccerTeams')
+    if (stored) {
+      try { setFavoriteSoccerTeams(JSON.parse(stored)) } catch {}
     }
   }, [])
   
@@ -3577,6 +3594,94 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
       setTopEventsCanScrollNext(topEventsCarouselApi.canScrollNext())
     })
   }, [topEventsCarouselApi])
+  
+  // My Teams' Next Fixtures: selectable teams and mock upcoming fixtures
+  const MY_TEAMS_SOCCER_TEAMS = useMemo(() => [
+    { id: 'liverpool', name: 'Liverpool', logo: '/team/Liverpool FC.png', code: 'LIV' },
+    { id: 'arsenal', name: 'Arsenal', logo: '/team/Arsenal FC.png', code: 'ARS' },
+    { id: 'chelsea', name: 'Chelsea', logo: '/team/Chelsea FC.png', code: 'CHE' },
+    { id: 'manchester-united', name: 'Manchester United', logo: '/team/Manchester United.png', code: 'MUN' },
+    { id: 'tottenham', name: 'Tottenham', logo: '/team/Tottenham Hotspur.png', code: 'TOT' },
+    { id: 'manchester-city', name: 'Manchester City', logo: '/team/Manchester City.png', code: 'MCI' },
+    { id: 'newcastle', name: 'Newcastle', logo: '/team/Newcastle United.png', code: 'NEW' },
+    { id: 'aston-villa', name: 'Aston Villa', logo: '/team/Aston Villa.png', code: 'AVL' },
+    { id: 'west-ham', name: 'West Ham', logo: '/team/West Ham United.png', code: 'WHU' },
+    { id: 'everton', name: 'Everton', logo: '/team/Everton FC.png', code: 'EVE' },
+    { id: 'brighton', name: 'Brighton', logo: '/team/Brighton & Hove Albion.png', code: 'BHA' },
+    { id: 'wolves', name: 'Wolves', logo: '/team/Wolverhampton Wanderers.png', code: 'WOL' },
+    { id: 'bournemouth', name: 'Bournemouth', logo: '/team/AFC Bournemouth.png', code: 'BOU' },
+    { id: 'brentford', name: 'Brentford', logo: '/team/Brentford FC.png', code: 'BRE' },
+    { id: 'crystal-palace', name: 'Crystal Palace', logo: '/team/Crystal Palace.png', code: 'CRY' },
+    { id: 'fulham', name: 'Fulham', logo: '/team/Fulham FC.png', code: 'FUL' },
+    { id: 'leeds', name: 'Leeds', logo: '/team/Leeds United.png', code: 'LEE' },
+    { id: 'nottingham-forest', name: 'Nott\'m Forest', logo: '/team/Nottingham Forest.png', code: 'NFO' },
+    { id: 'sunderland', name: 'Sunderland', logo: '/team/Sunderland AFC.png', code: 'SUN' },
+    { id: 'burnley', name: 'Burnley', logo: '/team/Burnley FC.png', code: 'BUR' },
+    { id: 'real-madrid', name: 'Real Madrid', logo: '/team/Spain - LaLiga/Real Madrid.png', code: 'RMA' },
+    { id: 'barcelona', name: 'Barcelona', logo: '/team/Spain - LaLiga/FC Barcelona.png', code: 'BAR' },
+    { id: 'sheffield-wednesday', name: 'Shef Wed', logo: '/team/Sheffield_Wednesday_badge.svg-2.png', code: 'SHW' },
+    { id: 'sheffield-united', name: 'Shef Utd', logo: '/team/Sheffield_United_FC_logo.svg.png', code: 'SHU' },
+    { id: 'watford', name: 'Watford', logo: '/team/Watford.svg.png', code: 'WAT' },
+  ], [])
+  const MOCK_MY_TEAMS_FIXTURES = useMemo(() => [
+    { id: 201, team1Key: 'sheffield-wednesday', team2Key: 'sheffield-united', team1: 'Shef Wed', team2: 'Shef Utd', team1Code: 'SHW', team2Code: 'SHU', team1Percent: 65, team2Percent: 35, time: 'LIVE H2 45\'', league: 'Championship', leagueIcon: '/banners/sports_league/prem.svg', country: 'England', team1Logo: '/team/Sheffield_Wednesday_badge.svg-2.png', team2Logo: '/team/Sheffield_United_FC_logo.svg.png' },
+    { id: 202, team1Key: 'sheffield-wednesday', team2Key: 'liverpool', team1: 'Shef Wed', team2: 'Liverpool', team1Code: 'SHW', team2Code: 'LIV', team1Percent: 25, team2Percent: 75, time: 'TUESDAY 10:30PM', league: 'FA Cup', leagueIcon: '/banners/sports_league/prem.svg', country: 'England', team1Logo: '/team/Sheffield_Wednesday_badge.svg-2.png', team2Logo: '/team/Liverpool FC.png' },
+    { id: 203, team1Key: 'watford', team2Key: 'sheffield-wednesday', team1: 'Watford', team2: 'Shef Wed', team1Code: 'WAT', team2Code: 'SHW', team1Percent: 45, team2Percent: 55, time: 'SATURDAY 2:30PM', league: 'Championship', leagueIcon: '/banners/sports_league/prem.svg', country: 'England', team1Logo: '/team/Watford.svg.png', team2Logo: '/team/Sheffield_Wednesday_badge.svg-2.png' },
+    { id: 204, team1Key: 'liverpool', team2Key: 'arsenal', team1: 'Liverpool', team2: 'Arsenal', team1Code: 'LIV', team2Code: 'ARS', team1Percent: 52, team2Percent: 48, time: 'SUNDAY 4:30PM', league: 'Premier League', leagueIcon: '/banners/sports_league/prem.svg', country: 'England', team1Logo: '/team/Liverpool FC.png', team2Logo: '/team/Arsenal FC.png' },
+    { id: 205, team1Key: 'chelsea', team2Key: 'tottenham', team1: 'Chelsea', team2: 'Tottenham', team1Code: 'CHE', team2Code: 'TOT', team1Percent: 48, team2Percent: 52, time: 'SATURDAY 12:30PM', league: 'Premier League', leagueIcon: '/banners/sports_league/prem.svg', country: 'England', team1Logo: '/team/Chelsea FC.png', team2Logo: '/team/Tottenham Hotspur.png' },
+    { id: 206, team1Key: 'real-madrid', team2Key: 'barcelona', team1: 'Real Madrid', team2: 'Barcelona', team1Code: 'RMA', team2Code: 'BAR', team1Percent: 55, team2Percent: 45, time: 'WEDNESDAY 8:00PM', league: 'La Liga', leagueIcon: '/banners/sports_league/laliga.svg', country: 'Spain', team1Logo: '/team/Spain - LaLiga/Real Madrid.png', team2Logo: '/team/Spain - LaLiga/FC Barcelona.png' },
+    { id: 207, team1Key: 'liverpool', team2Key: 'manchester-city', team1: 'Liverpool', team2: 'Manchester City', team1Code: 'LIV', team2Code: 'MCI', team1Percent: 48, team2Percent: 52, time: 'SUNDAY 11:30AM', league: 'Premier League', leagueIcon: '/banners/sports_league/prem.svg', country: 'England', team1Logo: '/team/Liverpool FC.png', team2Logo: '/team/Manchester City.png' },
+    { id: 208, team1Key: 'arsenal', team2Key: 'chelsea', team1: 'Arsenal', team2: 'Chelsea', team1Code: 'ARS', team2Code: 'CHE', team1Percent: 58, team2Percent: 42, time: 'MONDAY 8:00PM', league: 'Premier League', leagueIcon: '/banners/sports_league/prem.svg', country: 'England', team1Logo: '/team/Arsenal FC.png', team2Logo: '/team/Chelsea FC.png' },
+    { id: 209, team1Key: 'manchester-united', team2Key: 'tottenham', team1: 'Manchester United', team2: 'Tottenham', team1Code: 'MUN', team2Code: 'TOT', team1Percent: 45, team2Percent: 55, time: 'SATURDAY 5:30PM', league: 'Premier League', leagueIcon: '/banners/sports_league/prem.svg', country: 'England', team1Logo: '/team/Manchester United.png', team2Logo: '/team/Tottenham Hotspur.png' },
+    { id: 210, team1Key: 'newcastle', team2Key: 'liverpool', team1: 'Newcastle', team2: 'Liverpool', team1Code: 'NEW', team2Code: 'LIV', team1Percent: 38, team2Percent: 62, time: 'FRIDAY 8:00PM', league: 'Premier League', leagueIcon: '/banners/sports_league/prem.svg', country: 'England', team1Logo: '/team/Newcastle United.png', team2Logo: '/team/Liverpool FC.png' },
+    { id: 211, team1Key: 'aston-villa', team2Key: 'arsenal', team1: 'Aston Villa', team2: 'Arsenal', team1Code: 'AVL', team2Code: 'ARS', team1Percent: 42, team2Percent: 58, time: 'SATURDAY 3:00PM', league: 'Premier League', leagueIcon: '/banners/sports_league/prem.svg', country: 'England', team1Logo: '/team/Aston Villa.png', team2Logo: '/team/Arsenal FC.png' },
+    { id: 212, team1Key: 'barcelona', team2Key: 'real-madrid', team1: 'Barcelona', team2: 'Real Madrid', team1Code: 'BAR', team2Code: 'RMA', team1Percent: 50, team2Percent: 50, time: 'SATURDAY 8:45PM', league: 'La Liga', leagueIcon: '/banners/sports_league/laliga.svg', country: 'Spain', team1Logo: '/team/Spain - LaLiga/FC Barcelona.png', team2Logo: '/team/Spain - LaLiga/Real Madrid.png' },
+    { id: 213, team1Key: 'sheffield-united', team2Key: 'watford', team1: 'Shef Utd', team2: 'Watford', team1Code: 'SHU', team2Code: 'WAT', team1Percent: 40, team2Percent: 60, time: 'TUESDAY 7:45PM', league: 'Championship', leagueIcon: '/banners/sports_league/prem.svg', country: 'England', team1Logo: '/team/Sheffield_United_FC_logo.svg.png', team2Logo: '/team/Watford.svg.png' },
+  ], [])
+  const myTeamsFixtures = useMemo(() => {
+    if (favoriteSoccerTeams.length === 0) return []
+    return MOCK_MY_TEAMS_FIXTURES.filter(f => favoriteSoccerTeams.includes(f.team1Key) || favoriteSoccerTeams.includes(f.team2Key))
+  }, [favoriteSoccerTeams, MOCK_MY_TEAMS_FIXTURES])
+
+  // Primary colours per team for My Teams fixture card gradient (logo-inspired)
+  const MY_TEAMS_PRIMARY_COLORS: Record<string, string> = {
+    'liverpool': '#c8102e',
+    'arsenal': '#ef0107',
+    'chelsea': '#034694',
+    'manchester-united': '#da291c',
+    'tottenham': '#132257',
+    'manchester-city': '#6cabdd',
+    'newcastle': '#241f20',
+    'aston-villa': '#670e36',
+    'west-ham': '#7d2c3b',
+    'everton': '#003399',
+    'brighton': '#0057b8',
+    'wolves': '#f9a01b',
+    'bournemouth': '#da291c',
+    'brentford': '#c61d23',
+    'crystal-palace': '#1b458f',
+    'fulham': '#000000',
+    'leeds': '#ffcd00',
+    'nottingham-forest': '#dd0000',
+    'sunderland': '#eb172a',
+    'burnley': '#6c1d45',
+    'real-madrid': '#febe10',
+    'barcelona': '#a50044',
+    'sheffield-wednesday': '#0053a0',
+    'sheffield-united': '#ee2737',
+    'watford': '#fbee23',
+  }
+
+  // Update my teams carousel scroll state
+  useEffect(() => {
+    if (!myTeamsCarouselApi) return
+    setMyTeamsCanScrollPrev(myTeamsCarouselApi.canScrollPrev())
+    setMyTeamsCanScrollNext(myTeamsCarouselApi.canScrollNext())
+    myTeamsCarouselApi.on('select', () => {
+      setMyTeamsCanScrollPrev(myTeamsCarouselApi.canScrollPrev())
+      setMyTeamsCanScrollNext(myTeamsCarouselApi.canScrollNext())
+    })
+  }, [myTeamsCarouselApi])
   
   // Update top bet boosts carousel scroll state
   useEffect(() => {
@@ -5919,7 +6024,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
             initialFilter={myBetsInitialFilter}
           />
         ) : (
-        <div className={cn("pt-0 pb-4 overflow-x-hidden", isMobile ? "px-1" : "px-5")}>
+        <div className={cn("pt-0 pb-4 overflow-x-hidden", isMobile ? "px-1" : "px-3")}>
           {/* Breadcrumbs - Soccer > Select Country > Select League */}
           <div className="flex items-center gap-2 mb-4 -mt-1">
             <button 
@@ -6393,7 +6498,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
             </AnimatePresence>
           
           {/* Top Events Section */}
-          <div className="mb-8">
+          <div className="mb-10 md:mb-12">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-base font-semibold text-white pl-2">Top Events</h2>
               <div className="flex items-center gap-2">
@@ -6714,6 +6819,142 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                   ))}
                 </CarouselContent>
               </Carousel>
+            </div>
+            
+            {/* My Teams' Next Fixtures - carousel or onboarding */}
+            <div className="mt-6 md:mt-8">
+            {(() => {
+              const showOnboarding = favoriteSoccerTeams.length === 0 || showMyTeamsOnboarding
+              const selections = showMyTeamsOnboarding ? myTeamsOnboardingSelections : favoriteSoccerTeams
+              const toggleTeam = (teamId: string) => {
+                if (showMyTeamsOnboarding) {
+                  setMyTeamsOnboardingSelections(prev => prev.includes(teamId) ? prev.filter(t => t !== teamId) : [...prev, teamId])
+                } else {
+                  setFavoriteSoccerTeams(prev => {
+                    const next = prev.includes(teamId) ? prev.filter(t => t !== teamId) : [...prev, teamId]
+                    if (typeof localStorage !== 'undefined') localStorage.setItem('favoriteSoccerTeams', JSON.stringify(next))
+                    return next
+                  })
+                }
+              }
+              const commitOnboarding = () => {
+                setFavoriteSoccerTeams(myTeamsOnboardingSelections)
+                localStorage.setItem('favoriteSoccerTeams', JSON.stringify(myTeamsOnboardingSelections))
+                setShowMyTeamsOnboarding(false)
+                setMyTeamsOnboardingSelections([])
+              }
+              const startEditTeams = () => {
+                setMyTeamsOnboardingSelections([...favoriteSoccerTeams])
+                setShowMyTeamsOnboarding(true)
+              }
+
+              return (
+                <div className="mb-8">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-base font-semibold text-white pl-2">My Teams&apos; Next Fixtures</h2>
+                    <div className="flex items-center gap-2">
+                      {favoriteSoccerTeams.length > 0 && !showMyTeamsOnboarding && (
+                        <Button variant="ghost" className="text-white/70 hover:text-white hover:bg-white/5 text-xs px-3 py-1.5 h-auto border border-white/20 rounded-small" onClick={startEditTeams}>Edit Teams</Button>
+                      )}
+                      {!isMobile && favoriteSoccerTeams.length > 0 && myTeamsFixtures.length > 0 && !showMyTeamsOnboarding && (
+                        <>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 border border-white/20 hover:bg-[#1a1a1a] text-white disabled:opacity-50" onClick={() => myTeamsCarouselApi?.scrollPrev()} disabled={!myTeamsCarouselApi || !myTeamsCanScrollPrev}><IconChevronLeft className="h-4 w-4" strokeWidth={2} /></Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-small bg-[#1a1a1a]/90 border border-white/20 hover:bg-[#1a1a1a] text-white disabled:opacity-50" onClick={() => myTeamsCarouselApi?.scrollNext()} disabled={!myTeamsCarouselApi || !myTeamsCanScrollNext}><IconChevronRight className="h-4 w-4" strokeWidth={2} /></Button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  {showOnboarding ? (
+                    <div className="rounded-small border border-white/10 bg-white/[0.03] p-4 md:p-5 w-full">
+                      <div className="flex flex-col items-center text-center w-full">
+                        <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center mb-2">
+                          <IconHeart className="w-5 h-5 text-white/50" strokeWidth={1.5} />
+                        </div>
+                        <h3 className="text-base font-semibold text-white mb-0.5">You have no favourite teams selected</h3>
+                        <p className="text-white/50 text-xs mb-3 w-full">Choose your favourite team (or teams) and we&apos;ll show their upcoming fixtures here.</p>
+                        <div className="w-full">
+                          <div className="flex flex-wrap justify-start gap-x-1 gap-y-1.5">
+                            {MY_TEAMS_SOCCER_TEAMS.map((team) => {
+                              const isSelected = selections.includes(team.id)
+                              return (
+                                <button key={team.id} type="button" onClick={() => toggleTeam(team.id)} className="group flex flex-col items-center gap-1 py-1 w-[7.5rem] flex-shrink-0 rounded transition-colors">
+                                  <div className={cn('w-7 h-7 rounded-md flex items-center justify-center flex-shrink-0 transition-colors', isSelected ? 'bg-white/20 ring-1 ring-[#ee3536]/40' : 'bg-white/10 group-hover:bg-white/15')}>
+                                    <img src={team.logo} alt={team.name} width={20} height={20} className="object-contain w-5 h-5" decoding="sync" onError={(e) => { e.currentTarget.style.display = 'none' }} />
+                                  </div>
+                                  <span className={cn('text-[11px] font-medium truncate w-full leading-tight text-center', isSelected ? 'text-white' : 'text-white/70')}>{team.name}</span>
+                                  {isSelected && <IconCheck className="w-3 h-3 text-[#ee3536] flex-shrink-0" strokeWidth={3} />}
+                                </button>
+                              )
+                            })}
+                          </div>
+                        </div>
+                        <div className="mt-3 flex items-center gap-2">
+                          <Button onClick={commitOnboarding} disabled={selections.length === 0} className={cn('px-5 py-1.5 rounded-lg text-xs font-semibold h-auto', selections.length > 0 ? 'bg-[#ee3536] hover:bg-[#d13636] text-white' : 'bg-white/10 text-white/40 cursor-not-allowed')}>
+                            {favoriteSoccerTeams.length > 0 && showMyTeamsOnboarding ? `Save (${selections.length})` : selections.length === 0 ? 'Choose teams to continue' : `Save teams (${selections.length})`}
+                          </Button>
+                          {favoriteSoccerTeams.length > 0 && showMyTeamsOnboarding && (
+                            <Button variant="ghost" className="text-white/50 hover:text-white/70 text-xs py-1.5 h-auto" onClick={() => { setShowMyTeamsOnboarding(false); setMyTeamsOnboardingSelections([]) }}>Cancel</Button>
+                          )}
+                        </div>
+                        <p className="text-white/30 text-[10px] mt-2 flex items-center gap-1"><IconHeart className="w-2.5 h-2.5" /> You can change your favourite teams anytime with Edit Teams</p>
+                      </div>
+                    </div>
+                  ) : myTeamsFixtures.length > 0 ? (
+                    <div className="relative -mx-6" style={{ overflow: 'visible', position: 'relative', width: 'calc(100% + 3rem)', maxWidth: 'none', boxSizing: 'border-box', minWidth: 0 }}>
+                      <Carousel setApi={setMyTeamsCarouselApi} className="w-full relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
+                        <CarouselContent className="ml-6 mr-0">
+                          {myTeamsFixtures.map((event) => {
+                            const favKey = favoriteSoccerTeams.includes(event.team1Key) ? event.team1Key : event.team2Key
+                            const primaryHex = MY_TEAMS_PRIMARY_COLORS[favKey] || '#ee3536'
+                            const r = parseInt(primaryHex.slice(1, 3), 16)
+                            const g = parseInt(primaryHex.slice(3, 5), 16)
+                            const b = parseInt(primaryHex.slice(5, 7), 16)
+                            const cardGradient = `linear-gradient(to bottom, rgba(${r}, ${g}, ${b}, 0.2) 0%, rgba(${r}, ${g}, ${b}, 0.06) 50%, rgba(255, 255, 255, 0.04) 100%)`
+                            return (
+                            <CarouselItem key={event.id} className="pl-2 md:pl-4 basis-auto flex-shrink-0">
+                              <div className="w-[320px] bg-white/5 border border-white/10 rounded-small p-3 relative overflow-hidden flex-shrink-0" style={{ background: cardGradient }}>
+                                <div className="flex items-center justify-between mb-3">
+                                  <div className="flex items-center gap-1.5">
+                                    <img src={event.leagueIcon} alt={event.league} width={16} height={16} className="object-contain" decoding="sync" />
+                                    <span className="text-[10px] text-white">{event.league} | {event.country}</span>
+                                  </div>
+                                  <span className="text-[10px] text-white/70">{event.time}</span>
+                                </div>
+                                <div className="flex items-center mb-3">
+                                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                                    <img src={event.team1Logo} alt={event.team1} width={20} height={20} className="w-5 h-5 object-contain flex-shrink-0" decoding="sync" onError={(e) => { const t = e.currentTarget; t.style.display = 'none'; const s = document.createElement('div'); s.className = 'w-5 h-5 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0'; s.innerHTML = '<span class="text-[8px] font-bold text-white">' + event.team1Code + '</span>'; if (t.parentElement) t.parentElement.insertBefore(s, t); }} />
+                                    <span className="text-xs font-semibold text-white truncate">{event.team1}</span>
+                                  </div>
+                                  <div className="flex items-center justify-center mx-3 flex-shrink-0">
+                                    <span className="text-sm text-white/50">v</span>
+                                  </div>
+                                  <div className="flex items-center gap-2 flex-1 justify-end min-w-0">
+                                    <span className="text-xs font-semibold text-white truncate">{event.team2}</span>
+                                    <img src={event.team2Logo} alt={event.team2} width={20} height={20} className="w-5 h-5 object-contain flex-shrink-0" decoding="sync" onError={(e) => { const t = e.currentTarget; t.style.display = 'none'; const s = document.createElement('div'); s.className = 'w-5 h-5 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0'; s.innerHTML = '<span class="text-[8px] font-bold text-white">' + event.team2Code + '</span>'; if (t.parentElement) t.parentElement.insertBefore(s, t); }} />
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-1.5">
+                                  <button type="button" onClick={() => addBetToSlip(event.id, `${event.team1} v ${event.team2}`, 'Moneyline', event.team1Code, '+350')} className={cn('bg-white/10 text-white rounded-small flex-1 h-[38px] flex flex-col items-center justify-center transition-colors cursor-pointer px-2', isBetSelected(event.id, 'Moneyline', event.team1Code) && 'bg-red-500')}><div className="text-[10px] text-white/70 leading-none mb-0.5">{event.team1Code}</div><div className="text-xs font-bold leading-none">+350</div></button>
+                                  <button type="button" onClick={() => addBetToSlip(event.id, `${event.team1} v ${event.team2}`, 'Moneyline', 'Tie', '+350')} className={cn('bg-white/10 text-white rounded-small flex-1 h-[38px] flex flex-col items-center justify-center transition-colors cursor-pointer px-2', isBetSelected(event.id, 'Moneyline', 'Tie') && 'bg-red-500')}><div className="text-[10px] text-white/70 leading-none mb-0.5">Tie</div><div className="text-xs font-bold leading-none">+350</div></button>
+                                  <button type="button" onClick={() => addBetToSlip(event.id, `${event.team1} v ${event.team2}`, 'Moneyline', event.team2Code, '+350')} className={cn('bg-white/10 text-white rounded-small flex-1 h-[38px] flex flex-col items-center justify-center transition-colors cursor-pointer px-2', isBetSelected(event.id, 'Moneyline', event.team2Code) && 'bg-red-500')}><div className="text-[10px] text-white/70 leading-none mb-0.5">{event.team2Code}</div><div className="text-xs font-bold leading-none">+350</div></button>
+                                </div>
+                              </div>
+                            </CarouselItem>
+                            )
+                          })}
+                        </CarouselContent>
+                      </Carousel>
+                    </div>
+                  ) : (
+                    <div className="rounded-small border border-white/10 bg-white/[0.03] p-6 text-center">
+                      <p className="text-white/60 text-sm">No upcoming fixtures for your teams right now. Check back later or add more teams.</p>
+                      <Button variant="ghost" className="mt-3 text-white/70 hover:text-white text-sm" onClick={startEditTeams}>Edit Teams</Button>
+                    </div>
+                  )}
+                </div>
+              )
+            })()}
             </div>
             
             {/* Sports Sub Nav Tabs - Under Event Cards */}
