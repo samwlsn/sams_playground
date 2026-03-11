@@ -6551,7 +6551,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
             
             <div className="relative w-full" style={{ overflow: 'visible', position: 'relative', boxSizing: 'border-box', minWidth: 0 }}>
               <Carousel setApi={setTopEventsCarouselApi} className="w-full relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
-                <CarouselContent className="ml-0 mr-0">
+                <CarouselContent className="ml-0 mr-0 gap-3">
                   {/* Dynamic Top Events - Mixed Soccer Leagues */}
                   {([
                     { id: 4, team1: 'Arsenal', team2: 'Chelsea', score: '1 - 0', team1Code: 'ARS', team2Code: 'CHE', team1Percent: 65, team2Percent: 35, time: 'H1 23\'', league: 'Premier League', leagueIcon: '/banners/sports_league/prem.svg', country: 'England', team1Logo: '/team/Arsenal FC.png', team2Logo: '/team/Chelsea FC.png' },
@@ -6903,7 +6903,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                   ) : myTeamsFixtures.length > 0 ? (
                     <div className="relative w-full" style={{ overflow: 'visible', position: 'relative', boxSizing: 'border-box', minWidth: 0 }}>
                       <Carousel setApi={setMyTeamsCarouselApi} className="w-full relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
-                        <CarouselContent className="ml-0 mr-0">
+                        <CarouselContent className="ml-0 mr-0 gap-3">
                           {myTeamsFixtures.map((event) => {
                             const t1Fav = favoriteSoccerTeams.includes(event.team1Key)
                             const t2Fav = favoriteSoccerTeams.includes(event.team2Key)
