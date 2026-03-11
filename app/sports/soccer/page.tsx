@@ -6024,7 +6024,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
             initialFilter={myBetsInitialFilter}
           />
         ) : (
-        <div className={cn("pt-0 pb-4 overflow-x-hidden", isMobile ? "px-1" : "px-3")}>
+        <div className="pt-0 pb-4 overflow-x-hidden mt-4 mr-4 mb-4 ml-6 pl-0 pr-0">
           {/* Breadcrumbs - Soccer > Select Country > Select League */}
           <div className="flex items-center gap-2 mb-4 -mt-1">
             <button 
@@ -6500,7 +6500,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
           {/* Top Events Section */}
           <div className="mb-10 md:mb-12">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-base font-semibold text-white pl-2">Top Events</h2>
+              <h2 className="text-base font-semibold text-white">Top Events</h2>
               <div className="flex items-center gap-2">
               <Button 
                 variant="ghost" 
@@ -6549,9 +6549,9 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                   </div>
                 </div>
             
-            <div className="relative -mx-6" style={{ overflow: 'visible', position: 'relative', width: 'calc(100% + 3rem)', maxWidth: 'none', boxSizing: 'border-box', minWidth: 0 }}>
+            <div className="relative w-full" style={{ overflow: 'visible', position: 'relative', boxSizing: 'border-box', minWidth: 0 }}>
               <Carousel setApi={setTopEventsCarouselApi} className="w-full relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
-                <CarouselContent className="ml-6 mr-0">
+                <CarouselContent className="ml-0 mr-0">
                   {/* Dynamic Top Events - Mixed Soccer Leagues */}
                   {([
                     { id: 4, team1: 'Arsenal', team2: 'Chelsea', score: '1 - 0', team1Code: 'ARS', team2Code: 'CHE', team1Percent: 65, team2Percent: 35, time: 'H1 23\'', league: 'Premier League', leagueIcon: '/banners/sports_league/prem.svg', country: 'England', team1Logo: '/team/Arsenal FC.png', team2Logo: '/team/Chelsea FC.png' },
@@ -6564,7 +6564,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                     { id: 11, team1: 'Manchester United', team2: 'Aston Villa', score: '0 - 1', team1Code: 'MUN', team2Code: 'AVL', team1Percent: 45, team2Percent: 55, time: 'H1 15\'', league: 'Premier League', leagueIcon: '/banners/sports_league/prem.svg', country: 'England', team1Logo: '/team/Manchester United.png', team2Logo: '/team/Aston Villa.png' },
                     { id: 12, team1: 'Real Sociedad', team2: 'Villarreal', score: '3 - 0', team1Code: 'RSO', team2Code: 'VIL', team1Percent: 78, team2Percent: 22, time: 'H2 58\'', league: 'La Liga', leagueIcon: '/banners/sports_league/laliga.svg', country: 'Spain', team1Logo: '/team/Spain - LaLiga/Real Sociedad.png', team2Logo: '/team/Spain - LaLiga/Villarreal CF.png' },
                   ]).map((event) => (
-                    <CarouselItem key={event.id} className="pl-2 md:pl-4 basis-auto flex-shrink-0">
+                    <CarouselItem key={event.id} className="pl-0 basis-auto flex-shrink-0">
                       <div className="w-[320px] bg-white/5 border border-white/10 rounded-small p-3 relative overflow-hidden flex-shrink-0" style={{ background: 'linear-gradient(to bottom, rgba(238, 53, 54, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)' }}>
                         {/* Header: League info and Live status */}
                         <div className="flex items-center justify-between mb-3">
@@ -6851,7 +6851,7 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
               return (
                 <div className="mb-8">
                   <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-base font-semibold text-white pl-2">My Teams&apos; Next Fixtures</h2>
+                    <h2 className="text-base font-semibold text-white">My Teams&apos; Next Fixtures</h2>
                     <div className="flex items-center gap-2">
                       {favoriteSoccerTeams.length > 0 && !showMyTeamsOnboarding && (
                         <Button variant="ghost" className="text-white/70 hover:text-white hover:bg-white/5 text-xs px-3 py-1.5 h-auto border border-white/20 rounded-small" onClick={startEditTeams}>Edit Teams</Button>
@@ -6901,18 +6901,22 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
                       </div>
                     </div>
                   ) : myTeamsFixtures.length > 0 ? (
-                    <div className="relative -mx-6" style={{ overflow: 'visible', position: 'relative', width: 'calc(100% + 3rem)', maxWidth: 'none', boxSizing: 'border-box', minWidth: 0 }}>
+                    <div className="relative w-full" style={{ overflow: 'visible', position: 'relative', boxSizing: 'border-box', minWidth: 0 }}>
                       <Carousel setApi={setMyTeamsCarouselApi} className="w-full relative" style={{ overflow: 'visible', position: 'relative', width: '100%', maxWidth: '100%', minWidth: 0 }} opts={{ dragFree: true, containScroll: 'trimSnaps', duration: 15 }}>
-                        <CarouselContent className="ml-6 mr-0">
+                        <CarouselContent className="ml-0 mr-0">
                           {myTeamsFixtures.map((event) => {
-                            const favKey = favoriteSoccerTeams.includes(event.team1Key) ? event.team1Key : event.team2Key
+                            const t1Fav = favoriteSoccerTeams.includes(event.team1Key)
+                            const t2Fav = favoriteSoccerTeams.includes(event.team2Key)
+                            const favKey = t1Fav && t2Fav
+                              ? (favoriteSoccerTeams.indexOf(event.team1Key) <= favoriteSoccerTeams.indexOf(event.team2Key) ? event.team1Key : event.team2Key)
+                              : (t1Fav ? event.team1Key : event.team2Key)
                             const primaryHex = MY_TEAMS_PRIMARY_COLORS[favKey] || '#ee3536'
                             const r = parseInt(primaryHex.slice(1, 3), 16)
                             const g = parseInt(primaryHex.slice(3, 5), 16)
                             const b = parseInt(primaryHex.slice(5, 7), 16)
                             const cardGradient = `linear-gradient(to bottom, rgba(${r}, ${g}, ${b}, 0.2) 0%, rgba(${r}, ${g}, ${b}, 0.06) 50%, rgba(255, 255, 255, 0.04) 100%)`
                             return (
-                            <CarouselItem key={event.id} className="pl-2 md:pl-4 basis-auto flex-shrink-0">
+                            <CarouselItem key={event.id} className="pl-0 basis-auto flex-shrink-0">
                               <div className="w-[320px] bg-white/5 border border-white/10 rounded-small p-3 relative overflow-hidden flex-shrink-0" style={{ background: cardGradient }}>
                                 <div className="flex items-center justify-between mb-3">
                                   <div className="flex items-center gap-1.5">
