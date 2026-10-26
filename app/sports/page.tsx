@@ -240,6 +240,7 @@ import {
   type ViewsRegistry,
 } from '@/components/ui/family-drawer'
 import { BetslipNumberPad } from '@/components/betslip/number-pad'
+import { StraightBetslip } from '@/components/betslip/straight-betslip'
 
 // Available square tile images
 const squareTileImages = [
@@ -4548,59 +4549,22 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
     })
   }, [setBets, setBetslipOpen])
   
-  // Helper function to add/remove bet from betslip (toggle behavior) - instant response
+  // Single straight bet: a price click replaces the selection and opens the slip.
   const addBetToSlip = useCallback((eventId: number, eventName: string, marketTitle: string, selection: string, odds: string) => {
-    setBets(prev => {
-    // Check if this exact bet already exists
-      const existingBetIndex = prev.findIndex(bet => 
-      bet.eventId === eventId && 
-      bet.marketTitle === marketTitle && 
-      bet.selection === selection
-    )
-    
-      if (existingBetIndex !== -1) {
-        // Remove it immediately - no delay
-        const newBets = prev.filter((_, index) => index !== existingBetIndex)
-        // Close drawer if no bets left
-        if (newBets.length === 0) {
-          setBetslipOpen(false)
-          setBetslipMinimized(false)
-        }
-        return newBets
-      }
-      
-      // Add new bet immediately
-    const newBet = {
-      id: `${eventId}-${marketTitle}-${selection}-${Date.now()}`,
+    setShowConfirmation(false)
+    setBets([{
+      id: `${eventId}-${marketTitle}-${selection}`,
       eventId,
       eventName,
       marketTitle,
       selection,
       odds,
-        stake: 0
-    }
-      
-      // Open betslip if closed, but preserve minimized state if already open
-      // On mobile, only auto-open on the FIRST bet (when betslip was never manually closed)
-      // After user closes betslip on mobile, don't auto-open again - bets go to dock
-      if (!betslipOpen) {
-        if (!isMobile) {
-          // Desktop: always open if closed
+      stake: 0,
+    }])
     setBetslipOpen(true)
-          setBetslipMinimized(false)
-        } else if (!betslipManuallyClosed) {
-          // Mobile: only auto-open if user hasn't manually closed it yet
-          setBetslipOpen(true)
-          setBetslipMinimized(false)
-        }
-        // If betslipManuallyClosed is true on mobile, don't auto-open - bets go to dock
-      }
-      // If already open (whether minimized or expanded), don't change the state
-      // This preserves the minimized state when adding bets
-      
-      return [...prev, newBet]
-    })
-  }, [setBets, setBetslipOpen, betslipOpen, betslipMinimized, isMobile, betslipManuallyClosed])
+    setBetslipMinimized(false)
+    setBetslipManuallyClosed(false)
+  }, [setBets, setBetslipOpen, setBetslipManuallyClosed])
 
   // Helper function to update bet stake
   const updateBetStake = (betId: string, stake: number) => {
@@ -8285,28 +8249,22 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
       <FamilyDrawerRoot 
         views={betslipViews} 
         open={betslipOpen}
-        defaultView={showConfirmation ? 'confirmation' : 'default'}
+        defaultView="default"
         onOpenChange={(open) => {
           if (!open) {
             setBetslipOpen(false)
             setBetslipMinimized(false)
             setShowConfirmation(false)
-            // On mobile, mark as manually closed so it won't auto-open again
-            if (isMobile) {
-              setBetslipManuallyClosed(true)
-            }
-            // CRITICAL: Restore body scroll after closing betslip
+            setBetslipManuallyClosed(false)
+            // Restore body scroll after closing the slip so the lobby stays usable.
             requestAnimationFrame(() => {
               document.body.style.removeProperty('overflow')
               document.body.style.removeProperty('pointer-events')
               document.documentElement.style.removeProperty('overflow')
             })
-          } else if (open) {
+          } else {
             setBetslipOpen(true)
-            // When user manually opens, reset the flag
-            if (isMobile) {
-              setBetslipManuallyClosed(false)
-            }
+            setBetslipManuallyClosed(false)
           }
         }}
       >
@@ -8315,11 +8273,32 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
         >
           <FamilyDrawerAnimatedWrapper 
             key={`betslip-${betslipMinimized}`}
-            className="px-0 py-0"
+            className="px-0 pb-0 pt-0"
           >
             <FamilyDrawerAnimatedContent>
-              <BetslipViewSwitcher />
-              {showConfirmation ? <BetslipConfirmationView /> : renderBetslipDefault()}
+              <StraightBetslip
+                selection={bets[0] ?? null}
+                onClose={() => {
+                  setBetslipOpen(false)
+                  setBetslipMinimized(false)
+                  setShowConfirmation(false)
+                  setBetslipManuallyClosed(false)
+                }}
+                onPlaced={(receipt) => {
+                  setPlacedBets((prev) => [
+                    ...prev,
+                    { ...receipt.selection, stake: receipt.stake, placedAt: new Date() },
+                  ])
+                  setMyBetsAlertCount((prev) => prev + 1)
+                }}
+                onDismissSuccess={() => {
+                  setBets([])
+                  setBetslipOpen(false)
+                  setBetslipMinimized(false)
+                  setShowConfirmation(false)
+                  setBetslipManuallyClosed(false)
+                }}
+              />
             </FamilyDrawerAnimatedContent>
           </FamilyDrawerAnimatedWrapper>
         </FamilyDrawerContent>
@@ -9191,15 +9170,16 @@ function NavTestPageContent() {
       const detail = (e as CustomEvent).detail as { legs: { event: string; selection: string; odds: string }[] } | undefined
       if (!detail?.legs?.length) return
       // Build new bets from the parlay legs
-      const newBets = detail.legs.map((leg, i) => ({
-        id: `chat-copy-${Date.now()}-${i}`,
-        eventId: Date.now() + i,
+      const leg = detail.legs[0]
+      const newBets = [{
+        id: `chat-copy-${Date.now()}`,
+        eventId: Date.now(),
         eventName: leg.event,
         marketTitle: 'Match Result',
         selection: leg.selection,
         odds: leg.odds,
         stake: 0,
-      }))
+      }]
       setBets(newBets)
       setBetslipOpen(true)
       setBetslipMinimized(false)
