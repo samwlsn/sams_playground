@@ -1447,3 +1447,11 @@ button[data-active="true"][class*="SidebarMenuButton"],
 [data-vaul-no-drag] [data-sidebar="content"] {
   overflow: visible !important;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  [data-vaul-drawer],
+  [data-vaul-overlay] {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
