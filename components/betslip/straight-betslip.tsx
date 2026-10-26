@@ -295,15 +295,7 @@ export function StraightBetslip({
                   <div className="flex items-start gap-3">
                     <div className="min-w-0 flex-1">
                       <h3 className="text-xs font-medium uppercase tracking-wide text-black/55">Parlay</h3>
-                      <p className="text-sm font-semibold text-black">{selections.length} selections</p>
-                      <ul className="mt-1 space-y-0.5">
-                        {selections.map((selection) => (
-                          <li key={selection.id} className="truncate text-sm text-black/70">
-                            {selection.selection} {selection.odds}
-                          </li>
-                        ))}
-                      </ul>
-                      <p className="mt-1 text-sm text-black">
+                      <p className="text-sm text-black">
                         Odds <span data-testid="parlay-odds" className="font-semibold tabular-nums">{parlayOdds}</span>
                       </p>
                       <p className="text-sm text-black">
