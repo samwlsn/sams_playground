@@ -42,6 +42,49 @@ export function formatMoney(amount: number): string {
   })
 }
 
+/** Decimal multiplier for one price. American odds use a leading + or -. */
+export function oddsToDecimal(odds: string): number {
+  const raw = odds.trim()
+  const fractional = raw.match(/^(\d+)\s*\/\s*(\d+)$/)
+  if (fractional) {
+    const denominator = Number(fractional[2])
+    if (denominator <= 0) return 1
+    return Number(fractional[1]) / denominator + 1
+  }
+  if (raw.startsWith('+') || raw.startsWith('-')) {
+    const american = Number(raw)
+    if (!Number.isFinite(american) || american === 0) return 1
+    if (american > 0) return american / 100 + 1
+    return 100 / Math.abs(american) + 1
+  }
+  const decimal = Number(raw)
+  if (!Number.isFinite(decimal) || decimal <= 0) return 1
+  return decimal
+}
+
+/** Combined decimal price for a parlay. Profit uses this minus 1. */
+export function parlayDecimal(oddsList: string[]): number {
+  if (oddsList.length === 0) return 1
+  return oddsList.reduce((product, odds) => product * oddsToDecimal(odds), 1)
+}
+
+export function parlayWinnings(stake: number, oddsList: string[]): number {
+  if (!Number.isFinite(stake) || stake <= 0 || oddsList.length < 2) return 0
+  return roundCents(stake * (parlayDecimal(oddsList) - 1))
+}
+
+export function formatParlayOdds(oddsList: string[]): string {
+  const decimal = parlayDecimal(oddsList)
+  const allDecimal = oddsList.every((odds) => {
+    const raw = odds.trim()
+    return !raw.startsWith('+') && !raw.startsWith('-') && !raw.includes('/')
+  })
+  if (allDecimal) return decimal.toFixed(2)
+  if (!Number.isFinite(decimal) || decimal <= 1) return '+0'
+  if (decimal >= 2) return `+${Math.round((decimal - 1) * 100)}`
+  return `-${Math.round(100 / (decimal - 1))}`
+}
+
 /** A placeable stake is a positive number with at most two decimal places. */
 export function parsePositiveStake(text: string): number | null {
   const trimmed = text.trim()

@@ -9,7 +9,9 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
   formatMoney,
+  formatParlayOdds,
   parsePositiveStake,
+  parlayWinnings,
   potentialWinnings,
 } from '@/lib/betting/potential-winnings'
 import { cn } from '@/lib/utils'
@@ -23,58 +25,90 @@ export interface StraightSelection {
   odds: string
 }
 
-interface PlacedReceipt {
-  selection: StraightSelection
+export interface PlacedLeg {
+  kind: 'straight' | 'parlay'
+  label: string
+  odds: string
   stake: number
   winnings: number
+  selection?: StraightSelection
 }
 
 interface StraightBetslipProps {
-  selection: StraightSelection | null
+  selections: StraightSelection[]
   onClose: () => void
-  onPlaced: (receipt: PlacedReceipt) => void
+  onRemove: (id: string) => void
+  onPlaced: (legs: PlacedLeg[]) => void
   onDismissSuccess: () => void
 }
 
 const ACCEPT_MS = 700
 
 export function StraightBetslip({
-  selection,
+  selections,
   onClose,
+  onRemove,
   onPlaced,
   onDismissSuccess,
 }: StraightBetslipProps) {
   const reduceMotion = useReducedMotion()
-  const stakeId = useId()
-  const inputRef = useRef<HTMLInputElement>(null)
+  const formId = useId()
   const placeToken = useRef(0)
-  const [stakeText, setStakeText] = useState('')
+  const [stakes, setStakes] = useState<Record<string, string>>({})
+  const [parlayText, setParlayText] = useState('')
   const [phase, setPhase] = useState<'edit' | 'pending' | 'success'>('edit')
-  const [receipt, setReceipt] = useState<PlacedReceipt | null>(null)
+  const [receipt, setReceipt] = useState<PlacedLeg[]>([])
   const phaseRef = useRef(phase)
   const dismissRef = useRef(onDismissSuccess)
   phaseRef.current = phase
   dismissRef.current = onDismissSuccess
 
-  const stake = parsePositiveStake(stakeText)
-  const winnings = selection && stake != null ? potentialWinnings(stake, selection.odds) : 0
-  const risk = stake ?? 0
-  const canPlace = phase === 'edit' && selection != null && stake != null
+  const eventCount = new Set(selections.map((selection) => selection.eventId)).size
+  const showParlay = selections.length >= 2 && eventCount >= 2
+  const parlayOdds = showParlay ? formatParlayOdds(selections.map((selection) => selection.odds)) : ''
+  const parlayStake = showParlay ? parsePositiveStake(parlayText) : null
+  const parlayProfit = parlayStake != null ? parlayWinnings(parlayStake, selections.map((selection) => selection.odds)) : 0
+
+  const straightLegs = selections.map((selection) => {
+    const stake = parsePositiveStake(stakes[selection.id] ?? '')
+    return {
+      selection,
+      stake,
+      winnings: stake != null ? potentialWinnings(stake, selection.odds) : 0,
+    }
+  })
+  const canPlace =
+    phase === 'edit' &&
+    (straightLegs.some((leg) => leg.stake != null) || parlayStake != null)
+
+  const selectionKey = selections.map((selection) => selection.id).join('|')
 
   useEffect(() => {
-    placeToken.current += 1
-    setPhase('edit')
-    setStakeText('')
-    setReceipt(null)
-  }, [selection?.id])
+    setStakes((prev) => {
+      const ids = new Set(selections.map((selection) => selection.id))
+      const next: Record<string, string> = {}
+      let changed = false
+      for (const [id, value] of Object.entries(prev)) {
+        if (ids.has(id)) next[id] = value
+        else changed = true
+      }
+      if (Object.keys(next).length !== Object.keys(prev).length) changed = true
+      return changed ? next : prev
+    })
+    if (!showParlay) setParlayText('')
+  }, [selectionKey, showParlay, selections])
 
+  const focusedKey = useRef('')
   useEffect(() => {
-    if (phase !== 'edit' || !selection) return
+    if (phase !== 'edit' || selections.length === 0) return
+    const newest = selections[selections.length - 1]
     const frame = window.requestAnimationFrame(() => {
-      inputRef.current?.focus()
+      if (focusedKey.current === selectionKey) return
+      focusedKey.current = selectionKey
+      document.getElementById(`${formId}-${newest.id}`)?.focus()
     })
     return () => window.cancelAnimationFrame(frame)
-  }, [phase, selection?.id])
+  }, [selectionKey, phase, formId, selections])
 
   useEffect(() => {
     return () => {
@@ -83,27 +117,49 @@ export function StraightBetslip({
     }
   }, [])
 
-  function handleStakeChange(next: string) {
+  function setStake(id: string, next: string) {
     const cleaned = next.replace(/[^0-9.]/g, '')
     if (cleaned === '' || /^\d*\.?\d{0,2}$/.test(cleaned)) {
-      setStakeText(cleaned)
+      setStakes((prev) => ({ ...prev, [id]: cleaned }))
     }
   }
 
+  function setParlayStake(next: string) {
+    const cleaned = next.replace(/[^0-9.]/g, '')
+    if (cleaned === '' || /^\d*\.?\d{0,2}$/.test(cleaned)) setParlayText(cleaned)
+  }
+
   function placeBet() {
-    if (!selection || !canPlace || stake == null) return
-    const snapshot: PlacedReceipt = {
-      selection,
-      stake,
-      winnings: potentialWinnings(stake, selection.odds),
+    if (!canPlace) return
+    const legs: PlacedLeg[] = []
+    for (const leg of straightLegs) {
+      if (leg.stake == null) continue
+      legs.push({
+        kind: 'straight',
+        label: leg.selection.selection,
+        odds: leg.selection.odds,
+        stake: leg.stake,
+        winnings: potentialWinnings(leg.stake, leg.selection.odds),
+        selection: leg.selection,
+      })
     }
+    if (showParlay && parlayStake != null) {
+      legs.push({
+        kind: 'parlay',
+        label: `${selections.length}-leg parlay`,
+        odds: parlayOdds,
+        stake: parlayStake,
+        winnings: parlayWinnings(parlayStake, selections.map((selection) => selection.odds)),
+      })
+    }
+    if (legs.length === 0) return
     const token = ++placeToken.current
     setPhase('pending')
     window.setTimeout(() => {
       if (placeToken.current !== token) return
-      setReceipt(snapshot)
+      setReceipt(legs)
       setPhase('success')
-      onPlaced(snapshot)
+      onPlaced(legs)
     }, reduceMotion ? 0 : ACCEPT_MS)
   }
 
@@ -111,14 +167,14 @@ export function StraightBetslip({
     <div
       data-testid="betslip"
       data-vaul-no-drag=""
-      className="flex max-h-[min(640px,calc(100dvh-88px))] flex-col overflow-y-auto bg-white text-black"
+      className="flex max-h-[min(640px,calc(100dvh-88px))] flex-col overflow-hidden bg-white text-black"
     >
       <VaulDrawer.Title className="sr-only">Betslip</VaulDrawer.Title>
       <VaulDrawer.Description className="sr-only">
-        Straight bet. Enter a stake to see risk and potential winnings, then place the bet.
+        Straight bets and a parlay. Enter a risk amount beside each selection.
       </VaulDrawer.Description>
 
-      <div className="flex items-center justify-between gap-3 border-b border-black/10 px-4 py-3">
+      <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-black/10 bg-white px-4 py-3">
         <h2 className="text-base font-semibold text-black">Betslip</h2>
         <Button
           type="button"
@@ -133,7 +189,7 @@ export function StraightBetslip({
       </div>
 
       <AnimatePresence mode="wait" initial={false}>
-        {phase === 'success' && receipt ? (
+        {phase === 'success' && receipt.length > 0 ? (
           <motion.div
             key="success"
             role="status"
@@ -143,28 +199,41 @@ export function StraightBetslip({
             animate={{ opacity: 1, y: 0 }}
             exit={reduceMotion ? undefined : { opacity: 0, y: 6 }}
             transition={{ duration: reduceMotion ? 0 : 0.22, ease: [0.4, 0, 0.2, 1] }}
-            className="flex flex-col gap-4 px-4 py-4"
+            className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-4"
           >
             <div className="flex items-center gap-3">
               <motion.div
                 initial={reduceMotion ? false : { scale: 0.7, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ duration: reduceMotion ? 0 : 0.2 }}
-                className="flex h-11 w-11 items-center justify-center rounded-full bg-[#2E7D32] text-white"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#2E7D32] text-white"
               >
                 <Check className="h-6 w-6" strokeWidth={2.5} />
               </motion.div>
               <div>
                 <p className="text-base font-semibold text-black">Bet placed</p>
-                <p className="text-sm text-black/70">Your straight bet was accepted.</p>
+                <p className="text-sm text-black/70">
+                  {receipt.length === 1 ? 'Your bet was accepted.' : `${receipt.length} bets were accepted.`}
+                </p>
               </div>
             </div>
-            <ReceiptDetails
-              selection={receipt.selection}
-              risk={receipt.stake}
-              winnings={receipt.winnings}
-              reduceMotion={!!reduceMotion}
-            />
+            <div className="flex flex-col gap-3">
+              {receipt.map((leg, index) => (
+                <div
+                  key={`${leg.kind}-${leg.label}-${index}`}
+                  data-testid={leg.kind === 'parlay' ? 'receipt-parlay' : 'receipt-straight'}
+                  className="rounded-md border border-black/10 px-3 py-2"
+                >
+                  <p className="text-xs font-medium uppercase tracking-wide text-black/55">
+                    {leg.kind === 'parlay' ? 'Parlay' : 'Selection'}
+                  </p>
+                  <p className="truncate text-sm font-semibold text-black">{leg.label}</p>
+                  <p className="text-sm text-black/70">Odds {leg.odds}</p>
+                  <p className="text-sm text-black">Risk ${formatMoney(leg.stake)}</p>
+                  <p className="text-sm text-black">Potential winnings ${formatMoney(leg.winnings)}</p>
+                </div>
+              ))}
+            </div>
             <Button
               type="button"
               onClick={onDismissSuccess}
@@ -175,83 +244,108 @@ export function StraightBetslip({
           </motion.div>
         ) : (
           <motion.form
-            key={selection?.id ?? 'empty'}
-            initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+            key="editor"
+            initial={reduceMotion ? false : { opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={reduceMotion ? undefined : { opacity: 0, y: -8 }}
-            transition={{ duration: reduceMotion ? 0 : 0.2, ease: [0.4, 0, 0.2, 1] }}
-            className="flex flex-col gap-4 px-4 py-4"
+            exit={reduceMotion ? undefined : { opacity: 0 }}
+            transition={{ duration: reduceMotion ? 0 : 0.18 }}
+            className="flex min-h-0 flex-1 flex-col"
             onSubmit={(event) => {
               event.preventDefault()
               placeBet()
             }}
           >
-            {selection ? (
-              <SelectionDetails selection={selection} />
-            ) : (
+            <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-4">
+            {selections.length === 0 ? (
               <p className="text-sm text-black/70">Choose a price to add a selection.</p>
+            ) : (
+              <section className="flex flex-col gap-3" data-testid="selections-section">
+                {showParlay && (
+                  <h3 className="text-xs font-medium uppercase tracking-wide text-black/55">Selections</h3>
+                )}
+                <AnimatePresence initial={false}>
+                  {straightLegs.map((leg) => (
+                    <SelectionRow
+                      key={leg.selection.id}
+                      selection={leg.selection}
+                      stakeText={stakes[leg.selection.id] ?? ''}
+                      winnings={leg.winnings}
+                      inputId={`${formId}-${leg.selection.id}`}
+                      disabled={phase === 'pending'}
+                      reduceMotion={!!reduceMotion}
+                      onChange={(value) => setStake(leg.selection.id, value)}
+                      onRemove={() => onRemove(leg.selection.id)}
+                    />
+                  ))}
+                </AnimatePresence>
+              </section>
             )}
 
-            <div className="flex flex-col gap-2">
-              <Label htmlFor={stakeId} className="text-sm font-medium text-black">
-                Stake
-              </Label>
-              <div className="relative">
-                <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-base text-black/50">
-                  $
-                </span>
-                <Input
-                  ref={inputRef}
-                  id={stakeId}
-                  data-testid="stake-input"
-                  inputMode="decimal"
-                  autoComplete="off"
-                  autoCorrect="off"
-                  enterKeyHint="done"
-                  value={stakeText}
-                  placeholder="0.00"
-                  disabled={!selection || phase === 'pending'}
-                  onChange={(event) => handleStakeChange(event.target.value)}
-                  className="h-12 border-black/20 bg-white pl-7 text-base text-black tabular-nums placeholder:text-black/35 focus-visible:ring-[#2E7D32] md:text-base"
-                />
-              </div>
+            <AnimatePresence initial={false}>
+              {showParlay && (
+                <motion.section
+                  key="parlay"
+                  data-testid="parlay-section"
+                  initial={reduceMotion ? false : { opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={reduceMotion ? undefined : { opacity: 0, y: 6 }}
+                  transition={{ duration: reduceMotion ? 0 : 0.18 }}
+                  className="rounded-md border border-black/10 bg-black/[0.03] p-3"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-xs font-medium uppercase tracking-wide text-black/55">Parlay</h3>
+                      <p className="text-sm font-semibold text-black">{selections.length} selections</p>
+                      <ul className="mt-1 space-y-0.5">
+                        {selections.map((selection) => (
+                          <li key={selection.id} className="truncate text-sm text-black/70">
+                            {selection.selection} {selection.odds}
+                          </li>
+                        ))}
+                      </ul>
+                      <p className="mt-1 text-sm text-black">
+                        Odds <span data-testid="parlay-odds" className="font-semibold tabular-nums">{parlayOdds}</span>
+                      </p>
+                      <p className="text-sm text-black">
+                        To win{' '}
+                        <MoneyFigure testId="parlay-winnings" value={parlayProfit} reduceMotion={!!reduceMotion} />
+                      </p>
+                    </div>
+                    <RiskField
+                      id={`${formId}-parlay`}
+                      testId="parlay-risk-input"
+                      value={parlayText}
+                      disabled={phase === 'pending'}
+                      onChange={setParlayStake}
+                    />
+                  </div>
+                </motion.section>
+              )}
+            </AnimatePresence>
+
             </div>
-
-            <dl className="grid grid-cols-[minmax(0,1fr)_8.5rem] items-baseline gap-x-3 gap-y-2 border-t border-black/10 pt-3">
-              <dt className="text-sm font-medium text-black">Risk</dt>
-              <dd className="text-right">
-                <MoneyFigure testId="risk-amount" value={risk} reduceMotion={!!reduceMotion} />
-              </dd>
-              <dt className="text-sm font-medium text-black">Potential winnings</dt>
-              <dd className="text-right">
-                <MoneyFigure
-                  testId="potential-winnings"
-                  value={winnings}
-                  reduceMotion={!!reduceMotion}
-                />
-              </dd>
-            </dl>
-
-            <Button
-              type="submit"
-              data-testid="place-bet"
-              disabled={phase === 'pending' || !canPlace}
-              className={cn(
-                'h-12 w-full text-base font-semibold disabled:opacity-100',
-                phase === 'pending' || canPlace
-                  ? 'bg-[#2E7D32] text-white hover:bg-[#256628]'
-                  : 'bg-neutral-200 text-neutral-600'
-              )}
-            >
-              {phase === 'pending' ? (
-                <span className="inline-flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 motion-safe:animate-spin" />
-                  Placing bet…
-                </span>
-              ) : (
-                'Place bet'
-              )}
-            </Button>
+            <div className="shrink-0 border-t border-black/10 px-4 py-3">
+              <Button
+                type="submit"
+                data-testid="place-bet"
+                disabled={phase === 'pending' || !canPlace}
+                className={cn(
+                  'h-12 w-full text-base font-semibold disabled:opacity-100',
+                  phase === 'pending' || canPlace
+                    ? 'bg-[#2E7D32] text-white hover:bg-[#256628]'
+                    : 'bg-neutral-200 text-neutral-600'
+                )}
+              >
+                {phase === 'pending' ? (
+                  <span className="inline-flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 motion-safe:animate-spin" />
+                    Placing bet…
+                  </span>
+                ) : (
+                  'Place bet'
+                )}
+              </Button>
+            </div>
           </motion.form>
         )}
       </AnimatePresence>
@@ -259,57 +353,106 @@ export function StraightBetslip({
   )
 }
 
-function SelectionDetails({ selection }: { selection: StraightSelection }) {
+function SelectionRow({
+  selection,
+  stakeText,
+  winnings,
+  inputId,
+  disabled,
+  reduceMotion,
+  onChange,
+  onRemove,
+}: {
+  selection: StraightSelection
+  stakeText: string
+  winnings: number
+  inputId: string
+  disabled: boolean
+  reduceMotion: boolean
+  onChange: (value: string) => void
+  onRemove: () => void
+}) {
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-3">
-      <div className="min-w-0">
+    <motion.div
+      layout={reduceMotion ? false : 'position'}
+      initial={reduceMotion ? false : { opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={reduceMotion ? undefined : { opacity: 0, height: 0 }}
+      transition={{ duration: reduceMotion ? 0 : 0.18 }}
+      className="flex items-start gap-2 border-b border-black/5 pb-3 last:border-b-0 last:pb-0"
+      data-testid="selection-row"
+    >
+      <Button
+        type="button"
+        variant="outline"
+        size="icon"
+        aria-label={`Remove ${selection.selection}`}
+        onClick={onRemove}
+        className="mt-0.5 h-11 w-11 shrink-0 border-black/15 bg-white text-black hover:bg-black/5"
+      >
+        <X className="h-4 w-4" />
+      </Button>
+      <div className="min-w-0 flex-1">
         <p className="text-xs font-medium uppercase tracking-wide text-black/55">Selection</p>
-        <p data-testid="bet-selection" className="truncate text-base font-semibold text-black">
+        <p data-testid="bet-selection" className="truncate text-sm font-semibold text-black">
           {selection.selection}
         </p>
-        <p className="truncate text-sm text-black/70">{selection.marketTitle}</p>
+        <p className="truncate text-sm text-black/70">
+          {selection.marketTitle} · <span data-testid="bet-odds" className="tabular-nums">{selection.odds}</span>
+        </p>
         <p className="truncate text-sm text-black/60">{selection.eventName}</p>
-      </div>
-      <div className="text-right">
-        <p className="text-xs font-medium uppercase tracking-wide text-black/55">Odds</p>
-        <p data-testid="bet-odds" className="text-base font-semibold tabular-nums text-black">
-          {selection.odds}
+        <p className="text-sm text-black">
+          To win <MoneyFigure testId="potential-winnings" value={winnings} reduceMotion={reduceMotion} />
         </p>
       </div>
-    </div>
+      <RiskField
+        id={inputId}
+        testId="stake-input"
+        value={stakeText}
+        disabled={disabled}
+        onChange={onChange}
+      />
+    </motion.div>
   )
 }
 
-function ReceiptDetails({
-  selection,
-  risk,
-  winnings,
-  reduceMotion,
+function RiskField({
+  id,
+  testId,
+  value,
+  disabled,
+  onChange,
 }: {
-  selection: StraightSelection
-  risk: number
-  winnings: number
-  reduceMotion: boolean
+  id: string
+  testId: string
+  value: string
+  disabled: boolean
+  onChange: (value: string) => void
 }) {
   return (
-    <dl className="grid grid-cols-[minmax(0,1fr)_8.5rem] gap-x-3 gap-y-2">
-      <dt className="text-sm font-medium text-black">Selection</dt>
-      <dd data-testid="receipt-selection" className="truncate text-right text-sm font-semibold text-black">
-        {selection.selection}
-      </dd>
-      <dt className="text-sm font-medium text-black">Odds</dt>
-      <dd data-testid="receipt-odds" className="text-right text-sm font-semibold tabular-nums text-black">
-        {selection.odds}
-      </dd>
-      <dt className="text-sm font-medium text-black">Risk</dt>
-      <dd className="text-right">
-        <MoneyFigure testId="receipt-risk" value={risk} reduceMotion={reduceMotion} />
-      </dd>
-      <dt className="text-sm font-medium text-black">Potential winnings</dt>
-      <dd className="text-right">
-        <MoneyFigure testId="receipt-winnings" value={winnings} reduceMotion={reduceMotion} />
-      </dd>
-    </dl>
+    <div className="w-[104px] shrink-0">
+      <Label htmlFor={id} className="mb-1 block text-right text-xs font-medium text-black">
+        Risk
+      </Label>
+      <div className="relative">
+        <span className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-sm text-black/50">
+          $
+        </span>
+        <Input
+          id={id}
+          data-testid={testId}
+          inputMode="decimal"
+          autoComplete="off"
+          autoCorrect="off"
+          enterKeyHint="done"
+          value={value}
+          placeholder="0.00"
+          disabled={disabled}
+          onChange={(event) => onChange(event.target.value)}
+          className="h-11 border-black/20 bg-white pl-5 pr-2 text-right text-base text-black tabular-nums placeholder:text-black/35 focus-visible:ring-[#2E7D32] md:text-base"
+        />
+      </div>
+    </div>
   )
 }
 
@@ -326,7 +469,7 @@ function MoneyFigure({
     <span
       data-testid={testId}
       data-value={value.toFixed(2)}
-      className="inline-flex h-5 min-w-[6.75rem] items-center justify-end overflow-hidden text-sm font-semibold tabular-nums text-black"
+      className="inline-flex h-5 min-w-[4.5rem] items-center overflow-hidden align-bottom text-sm font-semibold tabular-nums text-black"
     >
       <motion.span
         key={value.toFixed(2)}

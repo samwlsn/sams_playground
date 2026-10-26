@@ -4236,22 +4236,26 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
     })
   }, [setBets, setBetslipOpen])
   
-  // Single straight bet: a price click replaces the selection and opens the slip.
+  // Add a selection. The same price again removes it. Different games stay on the slip together.
   const addBetToSlip = useCallback((eventId: number, eventName: string, marketTitle: string, selection: string, odds: string) => {
+    const id = `${eventId}-${marketTitle}-${selection}`
     setShowConfirmation(false)
-    setBets([{
-      id: `${eventId}-${marketTitle}-${selection}`,
-      eventId,
-      eventName,
-      marketTitle,
-      selection,
-      odds,
-      stake: 0,
-    }])
+    setBets((prev) => {
+      const exists = prev.some((bet) => bet.id === id)
+      if (exists) {
+        const next = prev.filter((bet) => bet.id !== id)
+        if (next.length === 0) {
+          setBetslipOpen(false)
+          setBetslipMinimized(false)
+        }
+        return next
+      }
+      return [...prev, { id, eventId, eventName, marketTitle, selection, odds, stake: 0 }]
+    })
     setBetslipOpen(true)
     setBetslipMinimized(false)
     setBetslipManuallyClosed(false)
-  }, [setBets, setBetslipOpen, setBetslipManuallyClosed])
+  }, [setBets, setBetslipOpen, setBetslipMinimized, setBetslipManuallyClosed])
 
   // Helper function to update bet stake
   const updateBetStake = (betId: string, stake: number) => {
@@ -8615,19 +8619,42 @@ function SportsPage({ activeTab, onTabChange, onBack, brandPrimary, brandPrimary
           >
             <FamilyDrawerAnimatedContent>
               <StraightBetslip
-                selection={bets[0] ?? null}
+                selections={bets}
                 onClose={() => {
                   setBetslipOpen(false)
                   setBetslipMinimized(false)
                   setShowConfirmation(false)
                   setBetslipManuallyClosed(false)
                 }}
-                onPlaced={(receipt) => {
+                onRemove={(id) => {
+                  setBets((prev) => {
+                    const next = prev.filter((bet) => bet.id !== id)
+                    if (next.length === 0) {
+                      setBetslipOpen(false)
+                      setBetslipMinimized(false)
+                      setBetslipManuallyClosed(false)
+                    }
+                    return next
+                  })
+                }}
+                onPlaced={(legs) => {
+                  const placedAt = new Date()
                   setPlacedBets((prev) => [
                     ...prev,
-                    { ...receipt.selection, stake: receipt.stake, placedAt: new Date() },
+                    ...legs.map((leg) => leg.selection
+                      ? { ...leg.selection, stake: leg.stake, placedAt }
+                      : {
+                          id: `parlay-${placedAt.getTime()}`,
+                          eventId: 0,
+                          eventName: leg.label,
+                          marketTitle: 'Parlay',
+                          selection: leg.label,
+                          odds: leg.odds,
+                          stake: leg.stake,
+                          placedAt,
+                        }),
                   ])
-                  setMyBetsAlertCount((prev) => prev + 1)
+                  setMyBetsAlertCount((prev) => prev + legs.length)
                 }}
                 onDismissSuccess={() => {
                   setBets([])
