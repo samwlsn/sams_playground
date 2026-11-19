@@ -46,7 +46,11 @@ export const QUICK_LINKS = [
   { id: 'scottish', label: 'Scottish Premiership', icon: '/propshopx/leagues/star.svg' },
 ] as const
 
-export const SIDEBAR_PRIMARY = [
+export const SIDEBAR_PRIMARY: {
+  id: string
+  icon: string
+  active?: boolean
+}[] = [
   { id: 'home', icon: '/propshopx/sidebar/home.svg', active: true },
   { id: 'betslip', icon: '/propshopx/sidebar/betslip.svg' },
   { id: 'live', icon: '/propshopx/sidebar/live.svg' },
@@ -54,7 +58,7 @@ export const SIDEBAR_PRIMARY = [
   { id: 'rocket', icon: '/propshopx/sidebar/rocket.svg' },
   { id: 'sgp', icon: '/propshopx/sidebar/sgp.svg' },
   { id: 'mp', icon: '/propshopx/sidebar/mp.svg' },
-] as const
+]
 
 export const SIDEBAR_SPORTS_TOP = [
   '/propshopx/sidebar/baseball.svg',
