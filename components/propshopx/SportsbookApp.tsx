@@ -31,7 +31,7 @@ function OddsButton({
     <button
       type="button"
       onClick={onToggle}
-      className="flex min-w-[72px] flex-1 flex-col items-center justify-center gap-0.5 rounded-md px-2 py-1.5 text-center transition-all duration-150"
+      className="flex min-w-0 w-full flex-col items-center justify-center gap-0.5 rounded-md px-2 py-1.5 text-center transition-all duration-150"
       style={{
         background: selected ? 'rgba(238,53,54,0.12)' : 'rgba(0,0,0,0.06)',
         boxShadow: selected ? `inset 0 0 0 1.5px ${psx.primary}` : undefined,
@@ -85,16 +85,26 @@ function EventScoreboard({
         </div>
       </div>
 
-      <div className="flex min-w-0 flex-1 gap-2 overflow-x-auto pb-0.5 [scrollbar-width:thin]">
+      <div
+        className="grid min-w-0 flex-1 gap-2 overflow-x-auto pb-0.5 [scrollbar-width:thin]"
+        style={{
+          gridTemplateColumns: `repeat(${event.markets.length}, minmax(0, 1fr))`,
+        }}
+      >
         {event.markets.map((market) => (
-          <div key={market.title} className="flex min-w-[148px] flex-1 flex-col gap-1">
+          <div key={market.title} className="flex min-w-0 flex-col gap-1">
             <span
               className="truncate text-center text-[10px] font-medium leading-[14px]"
               style={{ color: psx.textMuted }}
             >
               {market.title}
             </span>
-            <div className="flex gap-1">
+            <div
+              className="grid gap-1"
+              style={{
+                gridTemplateColumns: `repeat(${market.cells.length}, minmax(0, 1fr))`,
+              }}
+            >
               {market.cells.map((cell) => {
                 const key = `${event.id}:${market.title}:${cell.label}:${cell.odds}`
                 return (
