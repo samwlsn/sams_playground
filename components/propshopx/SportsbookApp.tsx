@@ -18,6 +18,9 @@ import { PropShopHeader } from './Header'
 import { PropShopSidebar } from './Sidebar'
 import { psx } from './tokens'
 
+/** Shared width for every odds/price button across markets and events. */
+const PRICE_BTN_WIDTH_PX = 72
+
 function OddsButton({
   cell,
   selected,
@@ -31,14 +34,15 @@ function OddsButton({
     <button
       type="button"
       onClick={onToggle}
-      className="flex min-w-0 w-full flex-col items-center justify-center gap-0.5 rounded-md px-2 py-1.5 text-center transition-all duration-150"
+      className="flex shrink-0 flex-col items-center justify-center gap-0.5 rounded-md px-1.5 py-1.5 text-center transition-all duration-150"
       style={{
+        width: PRICE_BTN_WIDTH_PX,
         background: selected ? 'rgba(238,53,54,0.12)' : 'rgba(0,0,0,0.06)',
         boxShadow: selected ? `inset 0 0 0 1.5px ${psx.primary}` : undefined,
         color: psx.textPrimary,
       }}
     >
-      <span className="text-[10px] font-medium leading-[14px] opacity-60">{cell.label}</span>
+      <span className="w-full truncate text-[10px] font-medium leading-[14px] opacity-60">{cell.label}</span>
       <span className="text-xs font-semibold leading-4 tabular-nums">{cell.odds}</span>
     </button>
   )
@@ -99,12 +103,7 @@ function EventScoreboard({
             >
               {market.title}
             </span>
-            <div
-              className="grid gap-1"
-              style={{
-                gridTemplateColumns: `repeat(${market.cells.length}, minmax(0, 1fr))`,
-              }}
-            >
+            <div className="flex justify-center gap-1">
               {market.cells.map((cell) => {
                 const key = `${event.id}:${market.title}:${cell.label}:${cell.odds}`
                 return (
