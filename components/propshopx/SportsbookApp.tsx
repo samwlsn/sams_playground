@@ -48,14 +48,21 @@ function OddsButton({
   )
 }
 
-function TeamCrest({ color, abbr }: { color: string; abbr: string }) {
+function TeamCrest({ src, abbr }: { src: string; abbr: string }) {
   return (
     <span
-      className="inline-flex size-5 shrink-0 items-center justify-center rounded-full text-[8px] font-bold text-white"
-      style={{ background: color }}
+      className="inline-flex size-5 shrink-0 items-center justify-center overflow-hidden rounded-full bg-black/[0.04]"
       aria-hidden
     >
-      {abbr.slice(0, 1)}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={src}
+        alt=""
+        width={20}
+        height={20}
+        className="size-5 object-contain"
+        title={abbr}
+      />
     </span>
   )
 }
@@ -76,13 +83,13 @@ function EventScoreboard({
           {event.time}
         </span>
         <div className="flex items-center gap-2">
-          <TeamCrest color={event.home.crest} abbr={event.home.abbr} />
+          <TeamCrest src={event.home.crest} abbr={event.home.abbr} />
           <span className="truncate text-sm font-semibold" style={{ color: psx.textPrimary }}>
             {event.home.name}
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <TeamCrest color={event.away.crest} abbr={event.away.abbr} />
+          <TeamCrest src={event.away.crest} abbr={event.away.abbr} />
           <span className="truncate text-sm font-semibold" style={{ color: psx.textPrimary }}>
             {event.away.name}
           </span>

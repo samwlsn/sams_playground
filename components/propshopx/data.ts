@@ -141,8 +141,8 @@ export const LEAGUE_SECTIONS: LeagueSection[] = [
       {
         id: 'e1',
         time: '12:30pm',
-        home: { name: 'Coventry City', abbr: 'COV', crest: '#77B6DE' },
-        away: { name: 'Brighton & Hove Albion', abbr: 'BRI', crest: '#0057A6' },
+        home: { name: 'Coventry City', abbr: 'COV', crest: '/propshopx/crests/cov.png' },
+        away: { name: 'Brighton & Hove Albion', abbr: 'BRI', crest: '/propshopx/crests/bri.png' },
         markets: mkMarkets(
           'COV',
           'BRI',
@@ -156,8 +156,8 @@ export const LEAGUE_SECTIONS: LeagueSection[] = [
       {
         id: 'e2',
         time: '3:00pm',
-        home: { name: 'West Ham United', abbr: 'WHU', crest: '#7A263A' },
-        away: { name: 'Aston Villa', abbr: 'AVL', crest: '#670E36' },
+        home: { name: 'West Ham United', abbr: 'WHU', crest: '/propshopx/crests/whu.png' },
+        away: { name: 'Aston Villa', abbr: 'AVL', crest: '/propshopx/crests/avl.png' },
         markets: mkMarkets(
           'WHU',
           'AVL',
@@ -171,8 +171,8 @@ export const LEAGUE_SECTIONS: LeagueSection[] = [
       {
         id: 'e3',
         time: '3:00pm',
-        home: { name: 'Crystal Palace', abbr: 'CRY', crest: '#1B458F' },
-        away: { name: 'Burnley', abbr: 'BUR', crest: '#6C1D45' },
+        home: { name: 'Crystal Palace', abbr: 'CRY', crest: '/propshopx/crests/cry.png' },
+        away: { name: 'Burnley', abbr: 'BUR', crest: '/propshopx/crests/bur.png' },
         markets: mkMarkets(
           'CRY',
           'BUR',
@@ -186,8 +186,8 @@ export const LEAGUE_SECTIONS: LeagueSection[] = [
       {
         id: 'e4',
         time: '3:00pm',
-        home: { name: 'Sunderland', abbr: 'SUN', crest: '#EB172B' },
-        away: { name: 'Everton', abbr: 'EVE', crest: '#003399' },
+        home: { name: 'Sunderland', abbr: 'SUN', crest: '/propshopx/crests/sun.png' },
+        away: { name: 'Everton', abbr: 'EVE', crest: '/propshopx/crests/eve.png' },
         markets: mkMarkets(
           'SUN',
           'EVE',
@@ -201,8 +201,8 @@ export const LEAGUE_SECTIONS: LeagueSection[] = [
       {
         id: 'e5',
         time: '5:30pm',
-        home: { name: 'Manchester City', abbr: 'MCI', crest: '#6CABDD' },
-        away: { name: 'Liverpool', abbr: 'LIV', crest: '#C8102E' },
+        home: { name: 'Manchester City', abbr: 'MCI', crest: '/propshopx/crests/mci.png' },
+        away: { name: 'Liverpool', abbr: 'LIV', crest: '/propshopx/crests/liv.png' },
         markets: mkMarkets(
           'MCI',
           'LIV',
@@ -224,8 +224,8 @@ export const LEAGUE_SECTIONS: LeagueSection[] = [
       {
         id: 'l1',
         time: '1:00pm',
-        home: { name: 'Real Madrid', abbr: 'RMA', crest: '#FEBE10' },
-        away: { name: 'Barcelona', abbr: 'BAR', crest: '#A50044' },
+        home: { name: 'Real Madrid', abbr: 'RMA', crest: '/propshopx/crests/rma.png' },
+        away: { name: 'Barcelona', abbr: 'BAR', crest: '/propshopx/crests/bar.png' },
         markets: mkMarkets(
           'RMA',
           'BAR',
@@ -239,8 +239,8 @@ export const LEAGUE_SECTIONS: LeagueSection[] = [
       {
         id: 'l2',
         time: '3:15pm',
-        home: { name: 'Atletico Madrid', abbr: 'ATM', crest: '#CB3524' },
-        away: { name: 'Sevilla', abbr: 'SEV', crest: '#F43333' },
+        home: { name: 'Atletico Madrid', abbr: 'ATM', crest: '/propshopx/crests/atm.png' },
+        away: { name: 'Sevilla', abbr: 'SEV', crest: '/propshopx/crests/sev.png' },
         markets: mkMarkets(
           'ATM',
           'SEV',
@@ -254,8 +254,8 @@ export const LEAGUE_SECTIONS: LeagueSection[] = [
       {
         id: 'l3',
         time: '5:30pm',
-        home: { name: 'Valencia', abbr: 'VAL', crest: '#EE3524' },
-        away: { name: 'Villarreal', abbr: 'VIL', crest: '#FFE014' },
+        home: { name: 'Valencia', abbr: 'VAL', crest: '/propshopx/crests/val.png' },
+        away: { name: 'Villarreal', abbr: 'VIL', crest: '/propshopx/crests/vil.png' },
         markets: mkMarkets(
           'VAL',
           'VIL',
@@ -269,8 +269,8 @@ export const LEAGUE_SECTIONS: LeagueSection[] = [
       {
         id: 'l4',
         time: '8:00pm',
-        home: { name: 'Athletic Bilbao', abbr: 'ATH', crest: '#EE2523' },
-        away: { name: 'Real Sociedad', abbr: 'RSO', crest: '#0067B1' },
+        home: { name: 'Athletic Bilbao', abbr: 'ATH', crest: '/propshopx/crests/ath.png' },
+        away: { name: 'Real Sociedad', abbr: 'RSO', crest: '/propshopx/crests/rso.png' },
         markets: mkMarkets(
           'ATH',
           'RSO',
@@ -284,8 +284,8 @@ export const LEAGUE_SECTIONS: LeagueSection[] = [
       {
         id: 'l5',
         time: '8:00pm',
-        home: { name: 'Girona', abbr: 'GIR', crest: '#CD2534' },
-        away: { name: 'Osasuna', abbr: 'OSA', crest: '#0A3161' },
+        home: { name: 'Girona', abbr: 'GIR', crest: '/propshopx/crests/gir.png' },
+        away: { name: 'Osasuna', abbr: 'OSA', crest: '/propshopx/crests/osa.png' },
         markets: mkMarkets(
           'GIR',
           'OSA',
