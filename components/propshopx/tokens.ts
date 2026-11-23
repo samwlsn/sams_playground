@@ -1,0 +1,22 @@
+/** PropShopX design tokens from Figma frame desktop // light (321:210004) */
+export const psx = {
+  primary: '#EE3536',
+  sidebar: '#212121',
+  header: '#212121',
+  contentBg: '#F5F5F5',
+  card: '#FFFFFF',
+  surfaceMuted: 'rgba(0,0,0,0.06)',
+  surfaceMutedInvert: 'rgba(250,250,250,0.05)',
+  borderInvert: 'rgba(255,255,255,0.08)',
+  borderLight: 'rgba(0,0,0,0.08)',
+  textPrimary: 'rgba(0,0,0,0.87)',
+  textMuted: 'rgba(0,0,0,0.6)',
+  textInverse: 'rgba(255,255,255,0.87)',
+  vipGold: '#E39E3D',
+  vipGoldBg: 'rgba(227,158,61,0.2)',
+  vipGoldBorder: 'rgba(227,158,61,0.6)',
+  destructive: '#F87171',
+  radiusField: 8,
+  radiusSelector: 6,
+  shadowCard: '0 0 16px rgba(0,0,0,0.05)',
+} as const

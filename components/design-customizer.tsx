@@ -567,6 +567,7 @@ export function DesignCustomizer({ onBrandChange, currentBrandId = 'betonline' }
   const pathname = usePathname()
   const isMaintenancePage = pathname === '/live-betting'
   const isLibraryPage = pathname?.startsWith('/library')
+  const isPropShopPage = pathname?.startsWith('/propshopx')
   const [isOpen, setIsOpen] = useState(false)
   const [activeBrandId, setActiveBrandId] = useState(currentBrandId)
   const [editingBrandId, setEditingBrandId] = useState<string | null>(null)
@@ -890,7 +891,7 @@ export function DesignCustomizer({ onBrandChange, currentBrandId = 'betonline' }
   }, [])
 
   // Don't render on mobile
-  if (isMobile || isMaintenancePage || isLibraryPage) return null
+  if (isMobile || isMaintenancePage || isLibraryPage || isPropShopPage) return null
 
   return (
     <>
